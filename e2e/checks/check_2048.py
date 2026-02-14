@@ -17,7 +17,8 @@ URL = config.WP_URL.rstrip("/") + "/2048-game/"
 SCREENSHOTS_DIR = os.path.join(_ROOT, "e2e", "screenshots")
 
 
-def main():
+def main():  # pylint: disable=too-many-locals,too-many-statements
+    """2048 게임 페이지를 열어 보드·셀·방향키 반응을 검사하고 스크린샷 저장."""
     os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
     screenshot_path = os.path.join(SCREENSHOTS_DIR, "2048-page.png")
 
@@ -29,12 +30,11 @@ def main():
             page.wait_for_timeout(3000)
             if page.locator(".game-iframe-wrap iframe").count() > 0:
                 try:
-                    page.frame_locator(".game-iframe-wrap iframe").locator("#board .cell").first.wait_for(
-                        state="visible", timeout=8000
-                    )
-                except Exception:
+                    fl = page.frame_locator(".game-iframe-wrap iframe")
+                    fl.locator("#board .cell").first.wait_for(state="visible", timeout=8000)
+                except Exception:  # pylint: disable=broad-exception-caught
                     pass
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"❌ 페이지 접속 실패: {e}")
             print(f"   URL: {URL}")
             print("   (game-test.local이 /etc/hosts 등에 등록돼 있는지 확인하세요)")
@@ -59,8 +59,10 @@ def main():
                     non_empty = fl.locator("#board .cell:not(.empty)").count()
                     score_el = fl.locator("#score").first
                     score_text = score_el.text_content() or "0"
-                    playable = non_empty >= 1 or (score_text.isdigit() and int(score_text) > 0)
-                except Exception:
+                    playable = non_empty >= 1 or (
+                        score_text.isdigit() and int(score_text) > 0
+                    )
+                except Exception:  # pylint: disable=broad-exception-caught
                     pass
         else:
             wrapper_visible = page.locator(".game-page-wrapper").count() > 0
@@ -87,7 +89,11 @@ def main():
             print(f"방향키 반응 (실제 플레이 가능): {'✅' if playable else '❌'}")
         print(f"스크린샷: {os.path.abspath(screenshot_path)}")
         print("=" * 50)
-        if title_ok and has_iframe and wrapper_visible and board_visible and cell_count == 16 and playable:
+        all_ok = (
+            title_ok and has_iframe and wrapper_visible and board_visible
+            and cell_count == 16 and playable
+        )
+        if all_ok:
             print("✅ iframe 내 보드·스타일·스크립트 정상 동작 (플레이 가능)")
         elif title_ok and has_iframe and cell_count == 16 and not playable:
             print("⚠️ 보드는 보이지만 방향키 반응 없음. iframe 포커스/이벤트 확인 필요.")

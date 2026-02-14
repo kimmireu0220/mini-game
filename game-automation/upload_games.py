@@ -127,10 +127,10 @@ def main():
         game_url = wordpress_client.upload_game_html(slug, full_bytes)
         if game_url:
             content = _wrap_in_iframe_src(game_url, title)
-            print(f"   미디어 URL → iframe src")
+            print("   미디어 URL → iframe src")
         else:
             content = _wrap_in_iframe_srcdoc(full_html, title)
-            print(f"   srcdoc fallback")
+            print("   srcdoc fallback")
 
         print(f"\n[{i}/{len(games)}] {title} (/{slug})")
         url = wordpress_client.publish_game_page(title, slug, content)

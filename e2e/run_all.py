@@ -19,6 +19,7 @@ CHECKS = [
 
 
 def main():
+    """등록된 E2E 체크를 순서대로 실행. 하나라도 실패하면 exit 1."""
     os.chdir(_ROOT)
     failed = []
     for name, module_path in CHECKS:
@@ -26,7 +27,7 @@ def main():
         try:
             mod = __import__(module_path, fromlist=["main"])
             mod.main()
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"❌ 실패: {e}")
             failed.append(name)
     if failed:

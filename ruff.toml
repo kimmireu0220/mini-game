@@ -1,0 +1,4 @@
+# game-automation, e2e: sys.path 조작 후 import 필요 → E402 허용
+[lint.per-file-ignores]
+"game-automation/**" = ["E402"]
+"e2e/**" = ["E402"]
