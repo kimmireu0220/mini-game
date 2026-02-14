@@ -453,7 +453,7 @@
     var list = players || [];
     container.innerHTML = "";
     container.className = "round-player-zones count-" + Math.min(list.length || 1, 8);
-    list.forEach(function (p) {
+    list.forEach(function (p, i) {
       var slot = document.createElement("div");
       slot.className = "round-player-slot";
       var zone = document.createElement("div");
@@ -461,7 +461,12 @@
       zone.dataset.clientId = p.client_id;
       var nameEl = document.createElement("div");
       nameEl.className = "round-zone-name";
-      nameEl.textContent = p.nickname;
+      var num = i + 1;
+      var pNumSpan = document.createElement("span");
+      pNumSpan.className = "round-zone-p-num num-" + num;
+      pNumSpan.textContent = "P" + num;
+      nameEl.appendChild(pNumSpan);
+      nameEl.appendChild(document.createTextNode(" " + p.nickname));
       zone.appendChild(nameEl);
       if (list.length > 1) {
         var winsEl = document.createElement("div");
@@ -533,8 +538,10 @@
     document.getElementById("btn-press").disabled = true;
     var gameplayWrap = document.getElementById("round-gameplay-wrap");
     var actionsWrap = document.getElementById("round-end-actions");
+    var btnPress = document.getElementById("btn-press");
     if (gameplayWrap) gameplayWrap.classList.remove("hidden");
     if (actionsWrap) actionsWrap.classList.add("hidden");
+    if (btnPress) btnPress.classList.remove("hidden");
     var liveTimerEl = document.getElementById("round-live-timer");
     if (liveTimerEl) liveTimerEl.textContent = "00:00";
     showScreen("screen-round");
@@ -706,11 +713,16 @@
     var leaveBtn = document.getElementById("btn-round-leave");
     if (gameplayWrap) gameplayWrap.classList.add("hidden");
     if (actionsWrap) actionsWrap.classList.remove("hidden");
+    var btnPress = document.getElementById("btn-press");
+    if (btnPress) btnPress.classList.add("hidden");
     if (againBtn) {
       againBtn.onclick = function () {
         if (actionsWrap) actionsWrap.classList.add("hidden");
         if (document.getElementById("round-gameplay-wrap")) {
           document.getElementById("round-gameplay-wrap").classList.remove("hidden");
+        }
+        if (document.getElementById("btn-press")) {
+          document.getElementById("btn-press").classList.remove("hidden");
         }
         showScreen("screen-lobby");
         enterLobby();
