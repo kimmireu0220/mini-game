@@ -15,12 +15,10 @@ _script_dir = os.path.dirname(os.path.abspath(__file__))
 if _script_dir not in sys.path:
     sys.path.insert(0, _script_dir)
 
+import paths
 import wordpress_client
 
-_ROOT = os.path.dirname(_script_dir)
-GAMES_DIR = os.path.join(_ROOT, "content", "games")
-MANIFEST_PATH = os.path.join(GAMES_DIR, "manifest.json")
-TITLE_SUFFIX = " - 무료 온라인 게임"
+MANIFEST_PATH = os.path.join(paths.GAMES_DIR, "manifest.json")
 
 
 def main():
@@ -52,7 +50,7 @@ def main():
             print(f"⚠️  [{i}] file/title/slug 누락: {item}")
             continue
 
-        path = os.path.join(GAMES_DIR, file_name)
+        path = os.path.join(paths.GAMES_DIR, file_name)
         if not os.path.isfile(path):
             print(f"⚠️  [{i}] 파일 없음: {path}")
             continue
@@ -60,9 +58,8 @@ def main():
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        page_title = title + TITLE_SUFFIX
         print(f"\n[{i}/{len(games)}] {title} (/{slug})")
-        url = wordpress_client._upsert_page(page_title, slug, content)
+        url = wordpress_client.publish_game_page(title, slug, content)
         if url:
             success += 1
 

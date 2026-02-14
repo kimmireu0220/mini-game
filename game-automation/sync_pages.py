@@ -14,11 +14,8 @@ _script_dir = os.path.dirname(os.path.abspath(__file__))
 if _script_dir not in sys.path:
     sys.path.insert(0, _script_dir)
 
+import paths
 import wordpress_client
-
-# 프로젝트 루트
-_ROOT = os.path.dirname(_script_dir)
-CONTENT_PAGES_DIR = os.path.join(_ROOT, "content", "pages")
 
 # 파일명 -> (WordPress 제목, slug)
 PAGES = [
@@ -38,7 +35,7 @@ def main():
         return
 
     for filename, title, slug in PAGES:
-        path = os.path.join(CONTENT_PAGES_DIR, filename)
+        path = os.path.join(paths.CONTENT_PAGES_DIR, filename)
         if not os.path.isfile(path):
             print(f"⚠️  파일 없음: {path}")
             continue

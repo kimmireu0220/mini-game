@@ -81,3 +81,9 @@ def publish_static_page(title, slug, content):
     """정적 페이지(About, Contact 등) 게시 또는 업데이트."""
     print(f"페이지 동기화: {title} (/{slug})")
     return _upsert_page(title, slug, content)
+
+
+def publish_game_page(title, slug, content):
+    """게임 페이지 게시 또는 업데이트. 제목에 ' - 무료 온라인 게임'을 붙인다."""
+    full_title = title + " - 무료 온라인 게임"
+    return _upsert_page(full_title, slug, content)
