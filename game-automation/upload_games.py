@@ -67,8 +67,8 @@ def _wrap_in_iframe_srcdoc(full_html, title):
     escaped = html.escape(full_html, quote=True)
     title_attr = title.replace('"', "&quot;")
     return (
-        '<div class="game-iframe-wrap" style="min-height:520px;">'
-        f'<iframe srcdoc="{escaped}" style="width:100%;height:520px;border:0;" '
+        '<div class="game-iframe-wrap" style="min-height:90vh;">'
+        f'<iframe srcdoc="{escaped}" style="width:100%;height:90vh;min-height:480px;border:0;" '
         f'title="{title_attr}"></iframe></div>'
     )
 
@@ -77,8 +77,8 @@ def _wrap_in_iframe_src(game_url, title):
     """미디어 URL을 iframe src로 사용. 모든 브라우저에서 스크립트 정상 실행."""
     title_attr = title.replace('"', "&quot;")
     return (
-        '<div class="game-iframe-wrap" style="min-height:520px;">'
-        f'<iframe src="{game_url}" style="width:100%;height:520px;border:0;" '
+        '<div class="game-iframe-wrap" style="min-height:90vh;">'
+        f'<iframe src="{game_url}" style="width:100%;height:90vh;min-height:480px;border:0;" '
         f'title="{title_attr}"></iframe></div>'
     )
 
