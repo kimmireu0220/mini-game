@@ -32,14 +32,11 @@ def check_connection():
         return False
 
 
-def publish_page(game_idea, html_code):
-    """페이지 게시 (같은 slug 있으면 업데이트)"""
-    print("[4/4] WordPress에 게시 중...")
-
-    slug = game_idea["slug"]
+def _upsert_page(title, slug, content):
+    """제목·slug·본문으로 페이지 생성 또는 업데이트. 성공 시 URL 반환."""
     page_data = {
-        "title": f"{game_idea['name']} - 무료 온라인 게임",
-        "content": html_code,
+        "title": title,
+        "content": content,
         "status": "publish",
         "slug": slug,
         "meta": {"_wp_page_template": "default"},
@@ -78,3 +75,9 @@ def publish_page(game_idea, html_code):
     except (requests.RequestException, ValueError, KeyError) as e:  # pylint: disable=broad-exception-caught
         print(f"❌ 오류 발생: {e}")
         return None
+
+
+def publish_static_page(title, slug, content):
+    """정적 페이지(About, Contact 등) 게시 또는 업데이트."""
+    print(f"페이지 동기화: {title} (/{slug})")
+    return _upsert_page(title, slug, content)

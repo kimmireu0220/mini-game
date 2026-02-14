@@ -1,5 +1,5 @@
 """
-설정: .env 로드, WordPress credentials(.env), Ollama/AdSense 상수, 게임 아이디어 데이터
+설정: .env 로드, WordPress credentials(.env), AdSense 상수(선택)
 """
 
 import os
@@ -48,58 +48,6 @@ WP_URL = _CREDS["WP_URL"]
 WP_USER = _CREDS["WP_USER"]
 WP_PASSWORD = _CREDS["WP_PASSWORD"]
 
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5-coder:14b")
 ADSENSE_CLIENT = os.environ.get("ADSENSE_CLIENT", "").strip()
 _slots = os.environ.get("ADSENSE_SLOTS", "").strip()
 ADSENSE_SLOTS = [s.strip() for s in _slots.split(",") if s.strip()] if _slots else []
-
-# ===================================
-# 게임 아이디어 데이터
-# ===================================
-GAME_IDEAS = [
-    {
-        "name": "2048 게임",
-        "viral_score": 9.0,
-        "difficulty": "중",
-        "description": "숫자를 합쳐 2048을 만드는 중독성 강한 퍼즐 게임",
-        "keywords": ["2048", "숫자게임", "퍼즐게임", "두뇌게임"],
-        "slug": "2048-game",
-        "genre": "퍼즐",
-    },
-    {
-        "name": "한글 워들",
-        "viral_score": 8.5,
-        "difficulty": "중",
-        "description": "5글자 한글 단어를 6번 안에 맞추는 게임",
-        "keywords": ["워들", "단어게임", "한글게임", "퀴즈"],
-        "slug": "korean-wordle",
-        "genre": "단어게임",
-    },
-    {
-        "name": "타자 연습",
-        "viral_score": 7.0,
-        "difficulty": "쉬움",
-        "description": "한글 타자 속도를 측정하고 연습하는 게임",
-        "keywords": ["타자연습", "한글타자", "타이핑게임"],
-        "slug": "typing-practice",
-        "genre": "교육",
-    },
-    {
-        "name": "뱀 게임",
-        "viral_score": 8.0,
-        "difficulty": "쉬움",
-        "description": "클래식 스네이크 게임, 먹이를 먹고 자라나세요",
-        "keywords": ["뱀게임", "스네이크", "아케이드", "클래식게임"],
-        "slug": "snake-game",
-        "genre": "아케이드",
-    },
-    {
-        "name": "메모리 카드 게임",
-        "viral_score": 7.5,
-        "difficulty": "쉬움",
-        "description": "같은 그림 찾기 기억력 테스트 게임",
-        "keywords": ["메모리게임", "카드게임", "기억력", "두뇌게임"],
-        "slug": "memory-card-game",
-        "genre": "퍼즐",
-    },
-]
