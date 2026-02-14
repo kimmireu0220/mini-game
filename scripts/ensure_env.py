@@ -3,6 +3,7 @@
 커밋 전 검사·e2e를 위해 필요한 환경을 확인하고, 없으면 설치합니다.
 실행: python scripts/ensure_env.py  (프로젝트 루트에서)
 """
+
 import subprocess
 import sys
 from pathlib import Path

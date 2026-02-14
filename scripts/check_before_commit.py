@@ -3,6 +3,7 @@
 커밋 전 검사: 린트·문법·import 오류 확인
 pre-commit 훅에서 호출되며, 실패 시 커밋이 중단됩니다.
 """
+
 import py_compile
 import subprocess
 import sys
@@ -72,6 +73,7 @@ def run_import_check():
         import config  # noqa: F401  # pylint: disable=unused-import
         import paths  # noqa: F401  # pylint: disable=unused-import
         import wordpress_client  # noqa: F401  # pylint: disable=unused-import
+
         __import__("e2e.checks.check_2048")
     except (ModuleNotFoundError, ImportError, AttributeError) as e:
         print(f"   ❌ import 실패: {e}")

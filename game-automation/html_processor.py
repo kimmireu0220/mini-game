@@ -6,6 +6,7 @@ import re
 
 import config
 
+
 def optimize_seo(game_idea, html_code):
     """SEO 메타 태그·Schema.org 마크업 삽입"""
     print("[2/4] SEO 최적화 중...")
@@ -14,20 +15,20 @@ def optimize_seo(game_idea, html_code):
     seo_meta = f"""
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{game_idea['description']} - 무료 온라인 게임">
-    <meta name="keywords" content="{', '.join(game_idea['keywords'])}, 무료게임, HTML5게임">
-    <meta property="og:title" content="{game_idea['name']} - 무료 온라인 게임">
-    <meta property="og:description" content="{game_idea['description']}">
+    <meta name="description" content="{game_idea["description"]} - 무료 온라인 게임">
+    <meta name="keywords" content="{", ".join(game_idea["keywords"])}, 무료게임, HTML5게임">
+    <meta property="og:title" content="{game_idea["name"]} - 무료 온라인 게임">
+    <meta property="og:description" content="{game_idea["description"]}">
     <meta property="og:type" content="game">
-    <title>{game_idea['name']} - 무료 온라인 게임</title>
+    <title>{game_idea["name"]} - 무료 온라인 게임</title>
     
     <!-- Schema.org 마크업 -->
     <script type="application/ld+json">
     {{
       "@context": "https://schema.org",
       "@type": "VideoGame",
-      "name": "{game_idea['name']}",
-      "description": "{game_idea['description']}",
+      "name": "{game_idea["name"]}",
+      "description": "{game_idea["description"]}",
       "gamePlatform": "웹 브라우저",
       "genre": "{genre}",
       "offers": {{

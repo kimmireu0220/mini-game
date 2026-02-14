@@ -18,10 +18,8 @@
     </div>
 
     <div id="screen-create" class="screen hidden">
-      <label for="input-room-name">방 이름</label>
-      <input type="text" id="input-room-name" maxlength="50" placeholder="방 이름">
-      <label for="input-room-pw">비밀번호 (선택)</label>
-      <input type="password" id="input-room-pw" placeholder="비밀번호">
+      <label for="input-room-name">방 이름 (선택)</label>
+      <input type="text" id="input-room-name" maxlength="50" placeholder="비어두면 기본 이름 사용">
       <div class="button-row">
         <button type="button" id="btn-create-submit">방 만들기</button>
         <button type="button" id="btn-back-from-create">뒤로</button>
@@ -31,15 +29,12 @@
     <div id="screen-create-done" class="screen hidden">
       <p>방이 만들어졌어요. 코드를 공유하세요.</p>
       <p class="room-code" id="display-room-code"></p>
-      <p class="invite-link" id="display-invite-link"></p>
       <button type="button" id="btn-enter-lobby">대기실로</button>
     </div>
 
     <div id="screen-join" class="screen hidden">
       <label for="input-join-code">방 코드</label>
       <input type="text" id="input-join-code" maxlength="6" placeholder="6자리 코드">
-      <label for="input-join-pw">비밀번호</label>
-      <input type="password" id="input-join-pw" placeholder="비밀번호 (없으면 비움)">
       <div class="button-row">
         <button type="button" id="btn-join-submit">입장</button>
         <button type="button" id="btn-back-from-join">뒤로</button>
@@ -50,8 +45,6 @@
       <h2 id="lobby-room-name"></h2>
       <p>참가자</p>
       <ul id="lobby-players"></ul>
-      <p>승리 횟수</p>
-      <ul id="lobby-wins"></ul>
       <div class="button-row">
         <button type="button" id="btn-start-round" class="host-only hidden">시작</button>
         <button type="button" id="btn-leave-room">나가기</button>
@@ -63,7 +56,7 @@
       <div id="round-gameplay-wrap">
         <p id="round-target-msg"></p>
         <p id="round-countdown"></p>
-        <p id="round-live-timer" class="round-live-timer hidden"></p>
+        <p id="round-live-timer" class="round-live-timer"></p>
         <button type="button" id="btn-press" disabled>누르기</button>
       </div>
       <div id="round-end-actions" class="button-row hidden">

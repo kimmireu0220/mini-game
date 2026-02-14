@@ -2,6 +2,7 @@
 Playwright E2E 확인 진입점.
 프로젝트 루트에서 실행: .venv/bin/python e2e/run_all.py
 """
+
 import os
 import sys
 

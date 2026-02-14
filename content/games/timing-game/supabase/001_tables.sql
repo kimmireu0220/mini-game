@@ -6,7 +6,6 @@ create table if not exists public.rooms (
   id uuid primary key default gen_random_uuid(),
   code text not null unique check (char_length(code) = 6),
   name text not null,
-  password_hash text,
   host_client_id text not null,
   created_at timestamptz not null default now(),
   closed_at timestamptz

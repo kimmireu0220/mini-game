@@ -19,7 +19,7 @@ def load_dotenv():
                     if not line or line.startswith("#") or "=" not in line:
                         continue
                     k, _, v = line.partition("=")
-                    k, v = k.strip(), v.strip().strip('"\'')
+                    k, v = k.strip(), v.strip().strip("\"'")
                     if k and os.environ.get(k) is None:
                         os.environ[k] = v
             break

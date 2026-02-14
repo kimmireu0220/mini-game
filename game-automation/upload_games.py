@@ -7,6 +7,7 @@ HTML 내 상대 경로 CSS/JS는 인라인한 뒤, 게임 HTML을 미디어로 �
   python game-automation/upload_games.py
 """
 
+import base64
 import html
 import json
 import os
@@ -47,8 +48,25 @@ def _inline_assets(html_content, html_path):
             return match.group(0)
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace("__SUPABASE_URL__", os.environ.get("SUPABASE_URL", ""))
-        content = content.replace("__SUPABASE_ANON_KEY__", os.environ.get("SUPABASE_ANON_KEY", ""))
+
+        # JS 문자열 안에 넣을 수 있도록 이스케이프 (따옴표, 백슬래시, 줄바꿈)
+        def _js_escape(s):
+            s = s or ""
+            s = s.replace("\\", "\\\\").replace('"', '\\"')
+            s = s.replace("\r", "\\r").replace("\n", "\\n")
+            return s
+
+        url = _js_escape(os.environ.get("SUPABASE_URL", ""))
+        key = _js_escape(os.environ.get("SUPABASE_ANON_KEY", ""))
+        content = content.replace("__SUPABASE_URL__", url)
+        content = content.replace("__SUPABASE_ANON_KEY__", key)
+        # Win 배지 이미지를 base64로 인라인 (단일 HTML 업로드 시 이미지 로드 가능하도록)
+        if "win-badge.png" in content:
+            img_path = os.path.join(base_dir, "win-badge.png")
+            if os.path.isfile(img_path):
+                with open(img_path, "rb") as img_f:
+                    data_url = "data:image/png;base64," + base64.b64encode(img_f.read()).decode("ascii")
+                content = content.replace('"win-badge.png"', '"' + data_url + '"')
         return "<script>\n" + content + "\n</script>"
 
     html_content = re.sub(
@@ -124,6 +142,10 @@ def main():
         with open(path, "r", encoding="utf-8") as f:
             full_html = f.read()
         full_html = _inline_assets(full_html, path)
+
+        # 예전에 올라간 slug.html 단일 파일이 있으면 삭제 (예: timing-game.html → 404)
+        if slug == "timing-game":
+            wordpress_client.delete_media_by_url_endswith("timing-game.html")
 
         # 1) 게임 HTML을 미디어로 업로드 → iframe src=URL (모든 브라우저에서 동작)
         # 2) 실패 시 srcdoc fallback

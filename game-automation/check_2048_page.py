@@ -5,6 +5,7 @@
     .venv/bin/python e2e/run_all.py
     .venv/bin/python e2e/checks/check_2048.py
 """
+
 import os
 import sys
 

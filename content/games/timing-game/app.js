@@ -4,8 +4,6 @@
   var STORAGE_CLIENT_ID = "timing_game_client_id";
   var STORAGE_NICKNAME = "timing_game_nickname";
   var COUNTDOWN_SEC = 3;
-  var RESULT_BUFFER_MS = 2500;
-
   function getConfig() {
     return window.TIMING_GAME_CONFIG || {};
   }
@@ -46,19 +44,6 @@
     if (el) el.classList.remove("hidden");
   }
 
-  function hashPassword(password) {
-    if (!password) return Promise.resolve("");
-    return crypto.subtle
-      .digest("SHA-256", new TextEncoder().encode(password))
-      .then(function (buf) {
-        return Array.from(new Uint8Array(buf))
-          .map(function (x) {
-            return x.toString(16).padStart(2, "0");
-          })
-          .join("");
-      });
-  }
-
   function generateRoomCode() {
     var code = "";
     for (var i = 0; i < 6; i++) code += Math.floor(Math.random() * 10);
@@ -76,7 +61,8 @@
     unsubscribeRounds: null,
     unsubscribeRoomDeleted: null,
     currentRound: null,
-    winCounts: {}
+    winCounts: {},
+    waitAllPressesIntervalId: null
   };
 
   function initScreens() {
@@ -120,61 +106,50 @@
   }
 
   function createRoom() {
-    var name = document.getElementById("input-room-name").value.trim();
-    var password = document.getElementById("input-room-pw").value;
-    if (!name) {
-      alert("방 이름을 입력하세요.");
-      return;
-    }
+    var name = document.getElementById("input-room-name").value.trim() || "대기실";
     var sb = getSupabase();
     if (!sb) return;
 
-    hashPassword(password).then(function (passwordHash) {
-      var code = generateRoomCode();
-      sb.from("rooms")
-        .insert({
-          code: code,
-          name: name,
-          password_hash: passwordHash || null,
-          host_client_id: state.clientId
-        })
-        .select("id")
-        .single()
-        .then(function (res) {
-          if (res.error) {
-            if (res.error.code === "23505") return createRoom();
-            alert(res.error.message);
-            return;
-          }
-          var roomId = res.data.id;
-          return sb
-            .from("room_players")
-            .insert({
-              room_id: roomId,
-              client_id: state.clientId,
-              nickname: state.nickname
-            })
-            .then(function (insertRes) {
-              if (insertRes.error) {
-                alert(insertRes.error.message);
-                return;
-              }
-              state.roomId = roomId;
-              state.roomCode = code;
-              state.roomName = name;
-              state.isHost = true;
-              document.getElementById("display-room-code").textContent = code;
-              var link = window.location.href.split("?")[0] + "?code=" + code;
-              document.getElementById("display-invite-link").textContent = link;
+    var code = generateRoomCode();
+    sb.from("rooms")
+      .insert({
+        code: code,
+        name: name,
+        host_client_id: state.clientId
+      })
+      .select("id")
+      .single()
+      .then(function (res) {
+        if (res.error) {
+          if (res.error.code === "23505") return createRoom();
+          alert(res.error.message);
+          return;
+        }
+        var roomId = res.data.id;
+        return sb
+          .from("room_players")
+          .insert({
+            room_id: roomId,
+            client_id: state.clientId,
+            nickname: state.nickname
+          })
+          .then(function (insertRes) {
+            if (insertRes.error) {
+              alert(insertRes.error.message);
+              return;
+            }
+            state.roomId = roomId;
+            state.roomCode = code;
+            state.roomName = name;
+            state.isHost = true;
+            document.getElementById("display-room-code").textContent = code;
               showScreen("screen-create-done");
-            });
-        });
-    });
+          });
+      });
   }
 
   function joinRoom() {
     var code = document.getElementById("input-join-code").value.trim().replace(/\D/g, "").slice(0, 6);
-    var password = document.getElementById("input-join-pw").value;
     if (code.length !== 6) {
       alert("6자리 방 코드를 입력하세요.");
       return;
@@ -183,7 +158,7 @@
     if (!sb) return;
 
     sb.from("rooms")
-      .select("id, name, password_hash, host_client_id, closed_at")
+      .select("id, name, host_client_id, closed_at")
       .eq("code", code)
       .single()
       .then(function (res) {
@@ -196,40 +171,34 @@
           alert("이미 종료된 방입니다.");
           return;
         }
-        return hashPassword(password).then(function (passwordHash) {
-          if (room.password_hash && room.password_hash !== passwordHash) {
-            alert("비밀번호가 맞지 않습니다.");
-            return;
-          }
-          return sb
-            .from("room_players")
-            .insert({
-              room_id: room.id,
-              client_id: state.clientId,
-              nickname: state.nickname
-            })
-            .then(function (insertRes) {
-              if (insertRes.error) {
-                if (insertRes.error.code === "23505") {
-                  state.roomId = room.id;
-                  state.roomCode = code;
-                  state.roomName = room.name;
-                  state.isHost = room.host_client_id === state.clientId;
-                  showScreen("screen-lobby");
-                  enterLobby();
-                  return;
-                }
-                alert(insertRes.error.message);
+        return sb
+          .from("room_players")
+          .insert({
+            room_id: room.id,
+            client_id: state.clientId,
+            nickname: state.nickname
+          })
+          .then(function (insertRes) {
+            if (insertRes.error) {
+              if (insertRes.error.code === "23505") {
+                state.roomId = room.id;
+                state.roomCode = code;
+                state.roomName = room.name;
+                state.isHost = room.host_client_id === state.clientId;
+                showScreen("screen-lobby");
+                enterLobby();
                 return;
               }
-              state.roomId = room.id;
-              state.roomCode = code;
-              state.roomName = room.name;
-              state.isHost = room.host_client_id === state.clientId;
-              showScreen("screen-lobby");
-              enterLobby();
-            });
-        });
+              alert(insertRes.error.message);
+              return;
+            }
+            state.roomId = room.id;
+            state.roomCode = code;
+            state.roomName = room.name;
+            state.isHost = room.host_client_id === state.clientId;
+            showScreen("screen-lobby");
+            enterLobby();
+          });
       });
   }
 
@@ -245,6 +214,18 @@
     if (state.lobbyPlayersPollIntervalId != null) {
       clearInterval(state.lobbyPlayersPollIntervalId);
       state.lobbyPlayersPollIntervalId = null;
+    }
+    if (state.waitAllPressesIntervalId != null) {
+      clearInterval(state.waitAllPressesIntervalId);
+      state.waitAllPressesIntervalId = null;
+    }
+    if (state.roundPressesPollIntervalId != null) {
+      clearInterval(state.roundPressesPollIntervalId);
+      state.roundPressesPollIntervalId = null;
+    }
+    if (state.liveTimerInterval != null) {
+      clearInterval(state.liveTimerInterval);
+      state.liveTimerInterval = null;
     }
     if (state.unsubscribeRoom) {
       state.unsubscribeRoom();
@@ -265,7 +246,7 @@
     if (!sb || !state.roomId) return;
 
     cleanupSubscriptions();
-    document.getElementById("lobby-room-name").textContent = state.roomName || "대기실";
+    document.getElementById("lobby-room-name").textContent = "방 제목: " + (state.roomName || "대기실");
     refreshLobbyPlayers();
     refreshLobbyWins();
     document.querySelectorAll(".host-only").forEach(function (el) {
@@ -338,9 +319,15 @@
         var ul = document.getElementById("lobby-players");
         ul.innerHTML = "";
         if (res.data) {
-          res.data.forEach(function (p) {
+          res.data.forEach(function (p, i) {
             var li = document.createElement("li");
-            li.textContent = p.nickname + (p.client_id === state.clientId ? " (나)" : state.isHost && p.client_id !== state.clientId ? "" : "");
+            var num = i + 1;
+            var numSpan = document.createElement("span");
+            numSpan.className = "lobby-player-num num-" + num;
+            numSpan.textContent = "P" + num;
+            li.appendChild(numSpan);
+            li.appendChild(document.createTextNode(" " + p.nickname));
+            if (p.client_id === state.clientId) li.classList.add("me");
             ul.appendChild(li);
           });
         }
@@ -357,7 +344,6 @@
       .order("created_at")
       .then(function (roundRes) {
         if (!roundRes.data || roundRes.data.length === 0) {
-          renderLobbyWins({});
           return;
         }
         var roundIds = roundRes.data.map(function (r) {
@@ -384,26 +370,7 @@
               if (best) counts[best.client_id] = (counts[best.client_id] || 0) + 1;
             });
             state.winCounts = counts;
-            renderLobbyWins(counts);
           });
-      });
-  }
-
-  function renderLobbyWins(counts) {
-    var sb = getSupabase();
-    if (!sb || !state.roomId) return;
-    var ul = document.getElementById("lobby-wins");
-    ul.innerHTML = "";
-    sb.from("room_players")
-      .select("client_id, nickname")
-      .eq("room_id", state.roomId)
-      .then(function (plRes) {
-        if (!plRes.data) return;
-        plRes.data.forEach(function (p) {
-          var li = document.createElement("li");
-          li.textContent = p.nickname + ": " + (counts[p.client_id] || 0) + "승";
-          ul.appendChild(li);
-        });
       });
   }
 
@@ -470,15 +437,17 @@
     container.innerHTML = "";
     container.className = "round-player-zones count-" + Math.min(list.length || 1, 8);
     list.forEach(function (p) {
+      var slot = document.createElement("div");
+      slot.className = "round-player-slot";
       var zone = document.createElement("div");
       zone.className = "round-player-zone" + (p.client_id === state.clientId ? " me" : "");
       zone.dataset.clientId = p.client_id;
       var nameEl = document.createElement("div");
       nameEl.className = "round-zone-name";
-      nameEl.textContent = p.nickname + (p.client_id === state.clientId ? " (나)" : "");
+      nameEl.textContent = p.nickname;
       var winsEl = document.createElement("div");
       winsEl.className = "round-zone-wins";
-      winsEl.textContent = (winCounts[p.client_id] || 0) + "승";
+      winsEl.textContent = "Win: " + (winCounts[p.client_id] || 0);
       var timeEl = document.createElement("div");
       timeEl.className = "round-zone-time";
       timeEl.style.display = "none";
@@ -489,7 +458,8 @@
       zone.appendChild(winsEl);
       zone.appendChild(timeEl);
       zone.appendChild(errorEl);
-      container.appendChild(zone);
+      slot.appendChild(zone);
+      container.appendChild(slot);
     });
   }
 
@@ -507,6 +477,25 @@
       timeEl.style.display = "";
       errorEl.style.display = "";
     }
+  }
+
+  function refreshRoundPressesDisplay() {
+    var sb = getSupabase();
+    if (!sb || !state.currentRound || !state.roomId) return;
+    var roundId = state.currentRound.id;
+    var startAt = new Date(state.currentRound.start_at).getTime();
+    var targetSec = state.currentRound.target_seconds || 0;
+    sb.from("round_presses")
+      .select("client_id, created_at")
+      .eq("round_id", roundId)
+      .then(function (pressRes) {
+        (pressRes.data || []).forEach(function (row) {
+          var created = new Date(row.created_at).getTime();
+          var elapsed = (created - startAt) / 1000;
+          var offsetSec = elapsed - targetSec;
+          updateRoundZoneResult(row.client_id, elapsed, offsetSec);
+        });
+      });
   }
 
   function onRoundStarted(round) {
@@ -527,6 +516,8 @@
     var actionsWrap = document.getElementById("round-end-actions");
     if (gameplayWrap) gameplayWrap.classList.remove("hidden");
     if (actionsWrap) actionsWrap.classList.add("hidden");
+    var liveTimerEl = document.getElementById("round-live-timer");
+    if (liveTimerEl) liveTimerEl.textContent = "00:00";
     showScreen("screen-round");
 
     var sb = getSupabase();
@@ -543,70 +534,84 @@
 
     var startAt = new Date(round.start_at).getTime();
     var now = Date.now();
-    var delay = Math.max(0, startAt - now - COUNTDOWN_SEC * 1000);
+    var delay = Math.max(0, startAt - now);
     var countdownEl = document.getElementById("round-countdown");
+    countdownEl.textContent = "";
 
     setTimeout(function () {
-      countdownEl.textContent = "3";
-      setTimeout(function () {
-        countdownEl.textContent = "2";
-        setTimeout(function () {
-          countdownEl.textContent = "1";
-          setTimeout(function () {
-            countdownEl.textContent = "시작!";
-            var startReal = Date.now();
-            var liveTimerEl = document.getElementById("round-live-timer");
-            liveTimerEl.classList.remove("hidden");
-            function hideLiveTimer() {
-              if (state.liveTimerInterval != null) {
-                clearInterval(state.liveTimerInterval);
-                state.liveTimerInterval = null;
-              }
-              liveTimerEl.classList.add("hidden");
-              liveTimerEl.textContent = "";
-            }
-            state.liveTimerInterval = setInterval(function () {
-              var elapsed = (Date.now() - startReal) / 1000;
-              var s = elapsed.toFixed(2);
-              var parts = s.split(".");
-              liveTimerEl.textContent = parts[0].padStart(2, "0") + "." + parts[1] + "초";
-              if (elapsed >= 3) {
-                hideLiveTimer();
-              }
-            }, 50);
-            document.getElementById("btn-press").disabled = false;
-            document.getElementById("btn-press").onclick = function () {
-              hideLiveTimer();
-              document.getElementById("btn-press").disabled = true;
-              document.getElementById("btn-press").onclick = null;
-              var elapsed = (Date.now() - startReal) / 1000;
-              var offsetSec = elapsed - (state.currentRound.target_seconds || 0);
-              updateRoundZoneResult(state.clientId, elapsed, offsetSec);
-              var sb = getSupabase();
-              if (sb && state.currentRound) {
-                sb.from("round_presses").insert({
-                  round_id: state.currentRound.id,
-                  client_id: state.clientId
-                }).then(function () {});
-              }
-              setTimeout(function () {
+      var startReal = Date.now();
+      var liveTimerEl = document.getElementById("round-live-timer");
+      function hideLiveTimer() {
+        if (state.liveTimerInterval != null) {
+          clearInterval(state.liveTimerInterval);
+          state.liveTimerInterval = null;
+        }
+      }
+      state.liveTimerInterval = setInterval(function () {
+        var elapsed = (Date.now() - startReal) / 1000;
+        if (elapsed >= 3) {
+          if (state.liveTimerInterval != null) {
+            clearInterval(state.liveTimerInterval);
+            state.liveTimerInterval = null;
+          }
+          liveTimerEl.textContent = "??:??";
+          return;
+        }
+        var s = elapsed.toFixed(2);
+        var parts = s.split(".");
+        liveTimerEl.textContent = parts[0].padStart(2, "0") + ":" + (parts[1] || "00").slice(0, 2);
+      }, 50);
+      document.getElementById("btn-press").disabled = false;
+      if (state.roundPressesPollIntervalId != null) {
+        clearInterval(state.roundPressesPollIntervalId);
+        state.roundPressesPollIntervalId = null;
+      }
+      refreshRoundPressesDisplay();
+      state.roundPressesPollIntervalId = setInterval(refreshRoundPressesDisplay, 500);
+      document.getElementById("btn-press").onclick = function () {
+        hideLiveTimer();
+        document.getElementById("btn-press").disabled = true;
+        document.getElementById("btn-press").onclick = null;
+        var elapsed = (Date.now() - startReal) / 1000;
+        var offsetSec = elapsed - (state.currentRound.target_seconds || 0);
+        updateRoundZoneResult(state.clientId, elapsed, offsetSec);
+        var sb = getSupabase();
+        if (sb && state.currentRound) {
+          sb.from("round_presses").insert({
+            round_id: state.currentRound.id,
+            client_id: state.clientId
+          }).then(function () {});
+        }
+        if (state.waitAllPressesIntervalId != null) {
+          clearInterval(state.waitAllPressesIntervalId);
+          state.waitAllPressesIntervalId = null;
+        }
+        var roundId = state.currentRound.id;
+        state.waitAllPressesIntervalId = setInterval(function () {
+          if (!sb || !state.currentRound || state.currentRound.id !== roundId) return;
+          sb.from("round_presses").select("client_id").eq("round_id", roundId).then(function (pressRes) {
+            sb.from("room_players").select("client_id").eq("room_id", state.roomId).then(function (playerRes) {
+              var pressCount = (pressRes.data || []).length;
+              var playerCount = (playerRes.data || []).length;
+              if (playerCount > 0 && pressCount >= playerCount) {
+                if (state.waitAllPressesIntervalId != null) {
+                  clearInterval(state.waitAllPressesIntervalId);
+                  state.waitAllPressesIntervalId = null;
+                }
                 showResult();
-              }, 800);
-            };
-            setTimeout(function () {
-              if (document.getElementById("btn-press").disabled === false) {
-                document.getElementById("btn-press").disabled = true;
-                document.getElementById("btn-press").onclick = null;
-                setTimeout(showResult, 500);
               }
-            }, state.currentRound.target_seconds * 1000 + RESULT_BUFFER_MS);
-          }, 1000);
-        }, 1000);
-      }, 1000);
+            });
+          });
+        }, 500);
+      };
     }, delay);
   }
 
   function showResult() {
+    if (state.roundPressesPollIntervalId != null) {
+      clearInterval(state.roundPressesPollIntervalId);
+      state.roundPressesPollIntervalId = null;
+    }
     var sb = getSupabase();
     if (!sb || !state.currentRound) {
       showScreen("screen-lobby");
@@ -656,12 +661,13 @@
                 Object.keys(state.winCounts).forEach(function (cid) {
                   newWinCounts[cid] = state.winCounts[cid];
                 });
-              });
+              }
               var winner = list[0];
               if (winner && winner.offsetMs != null) {
                 newWinCounts[winner.client_id] = (newWinCounts[winner.client_id] || 0) + 1;
               }
               state.winCounts = newWinCounts;
+              state.lastRoundWinnerId = (winner && winner.offsetMs != null) ? winner.client_id : null;
               var roundPlayers = (playerRes.data || []).map(function (p) {
                 return { client_id: p.client_id, nickname: players[p.client_id] || p.client_id };
               });
@@ -696,7 +702,25 @@
         leaveRoom();
       };
     }
-    renderRoundPlayerZones(state.roundPlayers || [], state.winCounts || {});
+    // 게임 기록(몇 초에 누른지)은 그대로 두고, 승 수만 갱신 + 이번 라운드 승자 위에 Win! 표시
+    var winCounts = state.winCounts || {};
+    var winnerId = state.lastRoundWinnerId || null;
+    document.querySelectorAll(".round-player-zone[data-client-id]").forEach(function (zone) {
+      var cid = zone.dataset.clientId;
+      var winsEl = zone.querySelector(".round-zone-wins");
+      if (winsEl && cid) winsEl.textContent = "Win: " + (winCounts[cid] || 0);
+      var slot = zone.parentElement;
+      if (!slot || !slot.classList.contains("round-player-slot")) return;
+      var badge = slot.querySelector(".round-zone-win-badge");
+      if (badge) badge.remove();
+      if (winnerId && cid === winnerId) {
+        var winBadge = document.createElement("img");
+        winBadge.className = "round-zone-win-badge";
+        winBadge.src = "win-badge.png";
+        winBadge.alt = "Win!";
+        slot.insertBefore(winBadge, zone);
+      }
+    });
   }
 
   function leaveRoom() {

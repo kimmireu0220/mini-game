@@ -2,6 +2,7 @@
 Playwright로 2048 게임 페이지를 열어 보드·스타일·스크립트가 정상인지 확인합니다.
 실행: .venv/bin/python e2e/checks/check_2048.py (프로젝트 루트에서)
 """
+
 import os
 import sys
 
@@ -31,7 +32,9 @@ def main():  # pylint: disable=too-many-locals,too-many-statements
             if page.locator(".game-iframe-wrap iframe").count() > 0:
                 try:
                     fl = page.frame_locator(".game-iframe-wrap iframe")
-                    fl.locator("#board .cell").first.wait_for(state="visible", timeout=8000)
+                    fl.locator("#board .cell").first.wait_for(
+                        state="visible", timeout=8000
+                    )
                 except Exception:  # pylint: disable=broad-exception-caught
                     pass
         except Exception as e:  # pylint: disable=broad-exception-caught
@@ -72,7 +75,9 @@ def main():  # pylint: disable=too-many-locals,too-many-statements
             cell_count = cells.count()
             playable = False
 
-        title_ok = "2048" in page.title() or page.locator("h1:has-text('2048')").count() > 0
+        title_ok = (
+            "2048" in page.title() or page.locator("h1:has-text('2048')").count() > 0
+        )
 
         # 크기: iframe·보드 픽셀 크기 (90vh 등 적용 여부)
         iframe_w, iframe_h, board_w, board_h = 0, 0, 0, 0
@@ -113,15 +118,22 @@ def main():  # pylint: disable=too-many-locals,too-many-statements
         print(f"스크린샷: {os.path.abspath(screenshot_path)}")
         print("=" * 50)
         all_ok = (
-            title_ok and has_iframe and wrapper_visible and board_visible
-            and cell_count == 16 and playable and size_ok
+            title_ok
+            and has_iframe
+            and wrapper_visible
+            and board_visible
+            and cell_count == 16
+            and playable
+            and size_ok
         )
         if all_ok:
             print("✅ iframe 내 보드·스타일·스크립트 정상 동작 (플레이 가능)")
         elif title_ok and has_iframe and cell_count == 16 and not playable:
             print("⚠️ 보드는 보이지만 방향키 반응 없음. iframe 포커스/이벤트 확인 필요.")
         elif not has_iframe:
-            print("⚠️ iframe이 없습니다. upload_games.py가 iframe 방식으로 업로드했는지 확인하세요.")
+            print(
+                "⚠️ iframe이 없습니다. upload_games.py가 iframe 방식으로 업로드했는지 확인하세요."
+            )
         else:
             print("⚠️ 일부 항목 미충족 (위 결과 확인)")
 

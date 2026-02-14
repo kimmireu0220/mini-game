@@ -3,6 +3,7 @@
 pre-commit 훅 설치 및 설정 스크립트
 커밋 전에 에러·린트 검사가 자동 실행되도록 합니다.
 """
+
 import subprocess
 import sys
 from pathlib import Path
@@ -75,7 +76,9 @@ def main():
         sys.exit(1)
 
     print("🧪 [테스트] 커밋 전 검사 스크립트 실행...")
-    if not run_command([sys.executable, "scripts/check_before_commit.py"], "check_before_commit"):
+    if not run_command(
+        [sys.executable, "scripts/check_before_commit.py"], "check_before_commit"
+    ):
         sys.exit(1)
 
     print("🎉 [완료] pre-commit 설정이 완료되었습니다.")
