@@ -106,6 +106,11 @@
   }
 
   function createRoom() {
+    var nick = document.getElementById("input-nickname").value.trim();
+    if (nick) {
+      state.nickname = nick;
+      setNickname(nick);
+    }
     var name = document.getElementById("input-room-name").value.trim() || "대기실";
     var sb = getSupabase();
     if (!sb) return;
@@ -149,6 +154,11 @@
   }
 
   function joinRoom() {
+    var nick = document.getElementById("input-nickname").value.trim();
+    if (nick) {
+      state.nickname = nick;
+      setNickname(nick);
+    }
     var code = document.getElementById("input-join-code").value.trim().replace(/\D/g, "").slice(0, 6);
     if (code.length !== 6) {
       alert("6자리 방 코드를 입력하세요.");
@@ -246,7 +256,14 @@
     if (!sb || !state.roomId) return;
 
     cleanupSubscriptions();
-    document.getElementById("lobby-room-name").textContent = "방 제목: " + (state.roomName || "대기실");
+    var titleEl = document.getElementById("lobby-room-name");
+    titleEl.textContent = "방 제목: " + (state.roomName || "대기실");
+    sb.from("rooms").select("name").eq("id", state.roomId).single().then(function (res) {
+      if (res.data && res.data.name) {
+        state.roomName = res.data.name;
+        titleEl.textContent = "방 제목: " + state.roomName;
+      }
+    });
     refreshLobbyPlayers();
     refreshLobbyWins();
     document.querySelectorAll(".host-only").forEach(function (el) {
@@ -445,17 +462,19 @@
       var nameEl = document.createElement("div");
       nameEl.className = "round-zone-name";
       nameEl.textContent = p.nickname;
-      var winsEl = document.createElement("div");
-      winsEl.className = "round-zone-wins";
-      winsEl.textContent = "Win: " + (winCounts[p.client_id] || 0);
+      zone.appendChild(nameEl);
+      if (list.length > 1) {
+        var winsEl = document.createElement("div");
+        winsEl.className = "round-zone-wins";
+        winsEl.textContent = "Win: " + (winCounts[p.client_id] || 0);
+        zone.appendChild(winsEl);
+      }
       var timeEl = document.createElement("div");
       timeEl.className = "round-zone-time";
       timeEl.style.display = "none";
       var errorEl = document.createElement("div");
       errorEl.className = "round-zone-error";
       errorEl.style.display = "none";
-      zone.appendChild(nameEl);
-      zone.appendChild(winsEl);
       zone.appendChild(timeEl);
       zone.appendChild(errorEl);
       slot.appendChild(zone);
@@ -713,7 +732,8 @@
       if (!slot || !slot.classList.contains("round-player-slot")) return;
       var badge = slot.querySelector(".round-zone-win-badge");
       if (badge) badge.remove();
-      if (winnerId && cid === winnerId) {
+      var playerCount = state.roundPlayers ? state.roundPlayers.length : 0;
+      if (playerCount > 1 && winnerId && cid === winnerId) {
         var winBadge = document.createElement("img");
         winBadge.className = "round-zone-win-badge";
         winBadge.src = "win-badge.png";
