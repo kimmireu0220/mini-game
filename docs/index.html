@@ -3,20 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>게임</title>
+  <title>game-test</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 2rem auto; padding: 0 1rem; }
-    h1 { font-size: 1.5rem; }
-    ul { list-style: none; padding: 0; }
-    a { display: block; padding: 0.75rem; margin: 0.5rem 0; background: #1a1a2e; color: #7fc8a8; border-radius: 8px; text-decoration: none; }
-    a:hover { background: #16213e; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Pretendard, -apple-system, "system-ui", system-ui, sans-serif;
+      background-color: #f7f8f9;
+      color: #222222;
+      margin: 0;
+      line-height: 1.6;
+    }
+    a { color: #1e73be; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .skip-link { position: absolute; top: -999px; left: 0; z-index: 999; padding: 0.5rem 1rem; background: #222; color: #fff; }
+    .skip-link:focus { top: 0; }
+
+    .site-header {
+      background: #fff;
+      border-bottom: 1px solid #e2e4e7;
+      padding: 1rem 0;
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .site-title { margin: 0; font-size: 1.5rem; font-weight: 600; }
+    .site-title a { color: #222; }
+    .site-title a:hover { text-decoration: none; opacity: 0.85; }
+
+    .main-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 1.5rem; }
+    .main-nav a { color: #222; font-weight: 500; }
+
+    .site-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    .entry-content h1 { font-size: 1.75rem; margin: 0 0 1rem; color: #222; }
+    .entry-content ul { list-style: none; padding: 0; margin: 0; }
+    .entry-content li { margin-bottom: 0.5rem; }
+    .entry-content li a {
+      display: inline-block;
+      padding: 0.5rem 0;
+      color: #1e73be;
+    }
+    .entry-content li a:hover { text-decoration: underline; }
+
+    .site-footer {
+      border-top: 1px solid #e2e4e7;
+      background: #fff;
+      padding: 1.5rem 2rem;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: #666;
+    }
+    .site-footer a { color: #1e73be; }
   </style>
 </head>
 <body>
-  <h1>게임</h1>
-  <ul>
-    <li><a href="games/2048-game.html">2048</a></li>
-    <li><a href="games/timing-game.html">시간 맞추기</a></li>
-  </ul>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <h1 class="site-title"><a href="./">game-test</a></h1>
+      <nav class="main-nav" aria-label="Primary">
+        <ul>
+          <li><a href="./">게임</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main id="content" class="site-content" role="main">
+    <article>
+      <header><h1>게임</h1></header>
+      <div class="entry-content">
+        <ul>
+          <li><a href="games/2048-game.html">2048</a></li>
+          <li><a href="games/timing-game.html">시간 맞추기</a></li>
+        </ul>
+      </div>
+    </article>
+  </main>
+  <footer class="site-footer" role="contentinfo">
+    © 2026 game-test • Built with <a href="https://generatepress.com" target="_blank" rel="noopener">GeneratePress</a>
+  </footer>
 </body>
 </html>
