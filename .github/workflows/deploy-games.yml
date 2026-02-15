@@ -10,7 +10,8 @@ on:
     branches: [main]
     paths:
       - "content/games/**"
-      - "game-automation/**"
+      - "blog-deploy/**"
+      - "screenshot-capture/**"
       - ".github/workflows/deploy-games.yml"
 
 jobs:
@@ -39,7 +40,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ fromJSON(toJSON(secrets)).SUPABASE_ANON_KEY }}
         run: |
           cd "$GITHUB_WORKSPACE"
-          python game-automation/upload_games.py --github-pages
+          python blog-deploy/upload_games.py --github-pages
 
       - name: docs/games 변경 시 커밋·푸시
         run: |
@@ -63,4 +64,4 @@ jobs:
           WP_PASSWORD: ${{ fromJSON(toJSON(secrets)).WP_PASSWORD }}
         run: |
           cd "$GITHUB_WORKSPACE"
-          python game-automation/upload_games.py
+          python blog-deploy/upload_games.py

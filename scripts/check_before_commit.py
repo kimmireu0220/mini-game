@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DIRS_TO_CHECK = ["game-automation", "e2e"]
+DIRS_TO_CHECK = ["blog-deploy", "screenshot-capture", "e2e"]
 
 
 def run_py_compile():
@@ -68,7 +68,7 @@ def run_import_check():
     """주요 모듈 import 가능 여부. 의존성 없으면 실패."""
     print("🔍 [3/3] import 검사...")
     sys.path.insert(0, str(ROOT))
-    sys.path.insert(0, str(ROOT / "game-automation"))
+    sys.path.insert(0, str(ROOT / "blog-deploy"))
     try:
         import config  # noqa: F401  # pylint: disable=unused-import
         import paths  # noqa: F401  # pylint: disable=unused-import

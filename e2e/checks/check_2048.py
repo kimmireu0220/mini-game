@@ -7,9 +7,9 @@ import os
 import sys
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_GAME_AUTOMATION = os.path.join(_ROOT, "game-automation")
-if _GAME_AUTOMATION not in sys.path:
-    sys.path.insert(0, _GAME_AUTOMATION)
+_BLOG_DEPLOY = os.path.join(_ROOT, "blog-deploy")
+if _BLOG_DEPLOY not in sys.path:
+    sys.path.insert(0, _BLOG_DEPLOY)
 
 import config
 from playwright.sync_api import sync_playwright

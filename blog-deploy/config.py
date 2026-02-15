@@ -4,7 +4,7 @@
 
 import os
 
-# 프로젝트 루트 (game-automation의 상위)
+# 프로젝트 루트 (blog-deploy의 상위)
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 

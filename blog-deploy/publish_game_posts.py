@@ -4,7 +4,7 @@
 포스트 본문(요약 + 플레이 방법 + CTA)에 넣어 포스트를 생성합니다.
 
 실행 (프로젝트 루트에서):
-  python game-automation/publish_game_posts.py
+  python blog-deploy/publish_game_posts.py
 """
 
 import glob

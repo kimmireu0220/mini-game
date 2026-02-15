@@ -11,7 +11,7 @@
    SUPABASE_URL=https://your-project.supabase.co
    SUPABASE_ANON_KEY=your-anon-key
    ```
-4. 프로젝트 루트에서 `python game-automation/upload_games.py`로 업로드하면 블로그에 게임 페이지가 생성됩니다.
+4. 프로젝트 루트에서 `python blog-deploy/upload_games.py`로 업로드하면 블로그에 게임 페이지가 생성됩니다.
 
 ## 로컬 테스트
 

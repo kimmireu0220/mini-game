@@ -4,7 +4,7 @@ HTML 내 상대 경로 CSS/JS는 인라인한 뒤, 게임 HTML을 미디어로 �
 페이지 본문에는 iframe src=미디어URL 만 넣습니다 (모든 브라우저에서 스크립트 실행).
 
 실행 (프로젝트 루트에서):
-  python game-automation/upload_games.py
+  python blog-deploy/upload_games.py
 """
 
 import base64

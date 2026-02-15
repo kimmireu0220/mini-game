@@ -3,8 +3,10 @@ import os
 import sys
 
 _script_dir = os.path.dirname(os.path.abspath(__file__))
-if _script_dir not in sys.path:
-    sys.path.insert(0, _script_dir)
+_root = os.path.dirname(_script_dir)
+_blog_deploy = os.path.join(_root, "blog-deploy")
+if _blog_deploy not in sys.path:
+    sys.path.insert(0, _blog_deploy)
 
 import config
 from playwright.sync_api import sync_playwright

@@ -2,8 +2,8 @@
 content/pages/ 의 HTML 파일을 WordPress 정적 페이지로 동기화합니다.
 
 실행 (프로젝트 루트에서):
-  python game-automation/sync_pages.py
-실행 (game-automation 폴더에서):
+  python blog-deploy/sync_pages.py
+실행 (blog-deploy 폴더에서):
   python sync_pages.py
 """
 

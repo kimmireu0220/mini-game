@@ -7,11 +7,11 @@ import os
 import sys
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_GAME_AUTOMATION = os.path.join(_ROOT, "game-automation")
+_BLOG_DEPLOY = os.path.join(_ROOT, "blog-deploy")
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
-if _GAME_AUTOMATION not in sys.path:
-    sys.path.insert(0, _GAME_AUTOMATION)
+if _BLOG_DEPLOY not in sys.path:
+    sys.path.insert(0, _BLOG_DEPLOY)
 
 # 등록된 체크 모듈의 main() 실행
 CHECKS = [

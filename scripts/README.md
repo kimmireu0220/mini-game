@@ -11,7 +11,7 @@
 
 커밋 전에 **스킵 없이** 다음을 **항상 전부** 검사합니다.
 
-1. **문법** – `py_compile` (game-automation, e2e)
+1. **문법** – `py_compile` (blog-deploy, screenshot-capture, e2e)
 2. **린트** – `ruff check` (미설치 시 실패)
 3. **import** – config, wordpress_client, e2e.checks (의존성 없으면 실패)
 

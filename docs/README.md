@@ -7,7 +7,7 @@
 프로젝트 루트에서:
 
 ```bash
-python game-automation/upload_games.py --github-pages
+python blog-deploy/upload_games.py --github-pages
 ```
 
 - `docs/games/` 아래에 인라인된 게임 HTML이 생성됩니다.
