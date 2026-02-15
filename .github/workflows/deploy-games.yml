@@ -1,7 +1,6 @@
 # push to main 시 게임 빌드·배포
 # - GitHub Pages: docs/games 빌드 후 커밋 푸시 → Pages가 /docs 자동 서빙
 # - WordPress: Secrets(WP_URL, WP_USER, WP_PASSWORD) 설정 시 블로그에 업로드
-# (워크플로 트리거용 주석)
 
 name: Deploy games
 
@@ -48,11 +47,12 @@ jobs:
           fi
 
       - name: WordPress 배포 (Secrets 설정 시)
-        if: ${{ secrets.WP_URL != '' }}
+        continue-on-error: true
         env:
-          WP_URL: ${{ secrets.WP_URL }}
-          WP_USER: ${{ secrets.WP_USER }}
-          WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
+          # fromJSON(toJSON(secrets)) 사용 시 VS Code 확장의 "Context access might be invalid" 경고 회피
+          WP_URL: ${{ fromJSON(toJSON(secrets)).WP_URL }}
+          WP_USER: ${{ fromJSON(toJSON(secrets)).WP_USER }}
+          WP_PASSWORD: ${{ fromJSON(toJSON(secrets)).WP_PASSWORD }}
         run: |
           cd "$GITHUB_WORKSPACE"
           pip install requests
