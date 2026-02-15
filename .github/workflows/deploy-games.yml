@@ -1,6 +1,7 @@
 # push to main 시 게임 빌드·배포
 # - GitHub Pages: docs/games 빌드 후 커밋 푸시 → Pages가 /docs 자동 서빙
 # - WordPress: Secrets(WP_URL, WP_USER, WP_PASSWORD) 설정 시 블로그에 업로드
+# (워크플로 트리거용 주석)
 
 name: Deploy games
 
