@@ -1,0 +1,56 @@
+# push to main 시 게임 빌드·배포
+# - GitHub Pages: docs/games 빌드 후 커밋 푸시 → Pages가 /docs 자동 서빙
+# - WordPress: Secrets(WP_URL, WP_USER, WP_PASSWORD) 설정 시 블로그에 업로드
+
+name: Deploy games
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/games/**"
+      - "game-automation/**"
+      - ".github/workflows/deploy-games.yml"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: GitHub Pages 빌드
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          python game-automation/upload_games.py --github-pages
+
+      - name: docs/games 변경 시 커밋·푸시
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/games/
+          if git diff --staged --quiet; then
+            echo "docs/games 변경 없음"
+          else
+            git commit -m "docs: GitHub Pages 게임 빌드 갱신 [skip ci]"
+            git push
+          fi
+
+      - name: WordPress 배포 (Secrets 설정 시)
+        if: ${{ secrets.WP_URL != '' }}
+        env:
+          WP_URL: ${{ secrets.WP_URL }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          pip install requests
+          python game-automation/upload_games.py

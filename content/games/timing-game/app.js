@@ -306,11 +306,11 @@
 
     cleanupSubscriptions();
     var titleEl = document.getElementById("lobby-room-name");
-    titleEl.textContent = "방 제목: " + (state.roomName || "대기실");
+    titleEl.textContent = "[ " + (state.roomName || "대기실") + " ]";
     sb.from("rooms").select("name").eq("id", state.roomId).single().then(function (res) {
       if (res.data && res.data.name) {
         state.roomName = res.data.name;
-        titleEl.textContent = "방 제목: " + state.roomName;
+        titleEl.textContent = "[ " + state.roomName + " ]";
       }
     });
     refreshLobbyPlayers();
