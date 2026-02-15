@@ -28,6 +28,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install dependencies
+        run: pip install requests
+
       - name: GitHub Pages 빌드
         run: |
           cd "$GITHUB_WORKSPACE"
@@ -55,5 +58,4 @@ jobs:
           WP_PASSWORD: ${{ fromJSON(toJSON(secrets)).WP_PASSWORD }}
         run: |
           cd "$GITHUB_WORKSPACE"
-          pip install requests
           python game-automation/upload_games.py
