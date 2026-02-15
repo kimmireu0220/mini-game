@@ -61,19 +61,19 @@ def _inline_assets(html_content, html_path):
         content = content.replace("__SUPABASE_URL__", url)
         content = content.replace("__SUPABASE_ANON_KEY__", key)
         # Win 배지 이미지를 base64로 인라인 (단일 HTML 업로드 시 이미지 로드 가능하도록)
-        if "win-badge.png" in content:
-            img_path = os.path.join(base_dir, "win-badge.png")
+        if "images/win-badge.png" in content:
+            img_path = os.path.join(base_dir, "images", "win-badge.png")
             if os.path.isfile(img_path):
                 with open(img_path, "rb") as img_f:
                     data_url = "data:image/png;base64," + base64.b64encode(img_f.read()).decode("ascii")
-                content = content.replace('"win-badge.png"', '"' + data_url + '"')
+                content = content.replace('"images/win-badge.png"', '"' + data_url + '"')
         # 방장 아이콘 이미지 base64 인라인
-        if "host-icon.png" in content:
-            img_path = os.path.join(base_dir, "host-icon.png")
+        if "images/host-icon.png" in content:
+            img_path = os.path.join(base_dir, "images", "host-icon.png")
             if os.path.isfile(img_path):
                 with open(img_path, "rb") as img_f:
                     data_url = "data:image/png;base64," + base64.b64encode(img_f.read()).decode("ascii")
-                content = content.replace('"host-icon.png"', '"' + data_url + '"')
+                content = content.replace('"images/host-icon.png"', '"' + data_url + '"')
         return "<script>\n" + content + "\n</script>"
 
     html_content = re.sub(

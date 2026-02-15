@@ -362,7 +362,7 @@
               var hostSpan = document.createElement("span");
               hostSpan.className = "lobby-player-host";
               var hostImg = document.createElement("img");
-              hostImg.src = "host-icon.png";
+              hostImg.src = "images/host-icon.png";
               hostImg.alt = "방장";
               hostImg.className = "lobby-player-host-icon";
               hostSpan.appendChild(hostImg);
@@ -887,7 +887,7 @@
       if (playerCount > 1 && winnerId && cid === winnerId) {
         var winBadge = document.createElement("img");
         winBadge.className = "round-zone-win-badge";
-        winBadge.src = "win-badge.png";
+        winBadge.src = "images/win-badge.png";
         winBadge.alt = "Win!";
         slot.insertBefore(winBadge, zone);
       }
