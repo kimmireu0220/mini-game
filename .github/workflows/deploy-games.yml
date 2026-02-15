@@ -15,6 +15,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +43,7 @@ jobs:
             echo "docs/games 변경 없음"
           else
             git commit -m "docs: GitHub Pages 게임 빌드 갱신 [skip ci]"
-            git push
+            git push origin HEAD:main
           fi
 
       - name: WordPress 배포 (Secrets 설정 시)
