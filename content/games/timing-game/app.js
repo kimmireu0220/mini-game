@@ -147,6 +147,7 @@
             state.roomCode = code;
             state.roomName = name;
             state.isHost = true;
+            state.hostClientId = state.clientId;
             document.getElementById("display-room-code").textContent = code;
               showScreen("screen-create-done");
           });
@@ -195,6 +196,7 @@
                 state.roomCode = code;
                 state.roomName = room.name;
                 state.isHost = room.host_client_id === state.clientId;
+                state.hostClientId = room.host_client_id;
                 showScreen("screen-lobby");
                 enterLobby();
                 return;
@@ -206,6 +208,7 @@
             state.roomCode = code;
             state.roomName = room.name;
             state.isHost = room.host_client_id === state.clientId;
+            state.hostClientId = room.host_client_id;
             showScreen("screen-lobby");
             enterLobby();
           });
@@ -269,6 +272,16 @@
     document.querySelectorAll(".host-only").forEach(function (el) {
       el.classList.toggle("hidden", !state.isHost);
     });
+    var noticeEl = document.getElementById("lobby-notice");
+    if (noticeEl) {
+      if (!state.isHost) {
+        noticeEl.textContent = "방장이 '시작'을 누르면 시작합니다.";
+        noticeEl.classList.remove("hidden");
+      } else {
+        noticeEl.textContent = "";
+        noticeEl.classList.add("hidden");
+      }
+    }
 
     var channel = sb.channel("room:" + state.roomId);
     var btnStart = document.getElementById("btn-start-round");
@@ -336,6 +349,7 @@
         var ul = document.getElementById("lobby-players");
         ul.innerHTML = "";
         if (res.data) {
+          var hostClientId = state.hostClientId || (state.isHost ? state.clientId : null);
           res.data.forEach(function (p, i) {
             var li = document.createElement("li");
             var num = i + 1;
@@ -344,6 +358,16 @@
             numSpan.textContent = "P" + num;
             li.appendChild(numSpan);
             li.appendChild(document.createTextNode(" " + p.nickname));
+            if (p.client_id === hostClientId) {
+              var hostSpan = document.createElement("span");
+              hostSpan.className = "lobby-player-host";
+              var hostImg = document.createElement("img");
+              hostImg.src = "host-icon.png";
+              hostImg.alt = "방장";
+              hostImg.className = "lobby-player-host-icon";
+              hostSpan.appendChild(hostImg);
+              li.appendChild(hostSpan);
+            }
             if (p.client_id === state.clientId) li.classList.add("me");
             ul.appendChild(li);
           });
@@ -585,7 +609,9 @@
         var countdownIntervalId = null;
         countdownIntervalId = setInterval(function () {
           var remaining = startAt - (Date.now() + serverOffset);
-          if (remaining > 2000) {
+          if (remaining > 3000) {
+            countdownEl.textContent = "4";
+          } else if (remaining > 2000) {
             countdownEl.textContent = "3";
           } else if (remaining > 1000) {
             countdownEl.textContent = "2";

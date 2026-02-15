@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     }
 
     const targetSeconds = Math.floor(Math.random() * 6) + 5;
-    const startAt = new Date(Date.now() + 3000).toISOString();
+    const startAt = new Date(Date.now() + 4000).toISOString();
 
     const { data: round, error: insertError } = await supabase
       .from("rounds")

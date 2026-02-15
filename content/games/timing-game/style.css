@@ -67,6 +67,17 @@
   font-size: 0.75em;
   margin-left: auto;
 }
+.game-page-wrapper #lobby-players .lobby-player-host {
+  margin-left: 12px;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+.game-page-wrapper #lobby-players .lobby-player-host-icon {
+  width: 1.25em;
+  height: 1.25em;
+  object-fit: contain;
+}
 .game-page-wrapper #lobby-players .lobby-player-num {
   display: inline-flex;
   align-items: center;
@@ -89,6 +100,14 @@
 .game-page-wrapper #lobby-players .lobby-player-num.num-7 { background: #991b1b; color: #fff; }
 .game-page-wrapper #lobby-players .lobby-player-num.num-8 { background: #1f2937; color: #fff; }
 .game-page-wrapper .host-only { }
+.game-page-wrapper .lobby-notice {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 4px 0 0 0;
+  width: 100%;
+  text-align: center;
+}
+.game-page-wrapper .lobby-notice.hidden { display: none; }
 .game-page-wrapper #round-countdown { font-size: 2.5rem; font-weight: bold; min-height: 0; }
 .game-page-wrapper .round-live-timer {
   font-size: 2.2rem;

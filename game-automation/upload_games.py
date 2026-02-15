@@ -67,6 +67,13 @@ def _inline_assets(html_content, html_path):
                 with open(img_path, "rb") as img_f:
                     data_url = "data:image/png;base64," + base64.b64encode(img_f.read()).decode("ascii")
                 content = content.replace('"win-badge.png"', '"' + data_url + '"')
+        # 방장 아이콘 이미지 base64 인라인
+        if "host-icon.png" in content:
+            img_path = os.path.join(base_dir, "host-icon.png")
+            if os.path.isfile(img_path):
+                with open(img_path, "rb") as img_f:
+                    data_url = "data:image/png;base64," + base64.b64encode(img_f.read()).decode("ascii")
+                content = content.replace('"host-icon.png"', '"' + data_url + '"')
         return "<script>\n" + content + "\n</script>"
 
     html_content = re.sub(
