@@ -1,5 +1,6 @@
 # push to main 시 게임 빌드·배포
 # - GitHub Pages: docs/games 빌드 후 커밋 푸시 → Pages가 /docs 자동 서빙
+#   Supabase 연동을 위해 Repository Secrets에 SUPABASE_URL, SUPABASE_ANON_KEY 설정 필요
 # - WordPress: Secrets(WP_URL, WP_USER, WP_PASSWORD) 설정 시 블로그에 업로드
 
 name: Deploy games
@@ -32,6 +33,9 @@ jobs:
         run: pip install requests
 
       - name: GitHub Pages 빌드
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           cd "$GITHUB_WORKSPACE"
           python game-automation/upload_games.py --github-pages
