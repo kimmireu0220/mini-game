@@ -293,11 +293,13 @@
         noticeEl.classList.add("hidden");
       }
     }
+    setupLobbyChannel(sb);
+  }
 
+  function setupLobbyChannel(sb) {
     var channel = sb.channel("room:" + state.roomId);
     var btnStart = document.getElementById("btn-start-round");
     btnStart.disabled = true;
-
     channel
       .on("postgres_changes", { event: "*", schema: "public", table: "room_players", filter: "room_id=eq." + state.roomId }, refreshLobbyPlayers)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "rounds", filter: "room_id=eq." + state.roomId }, function (payload) {
@@ -328,12 +330,10 @@
     state.unsubscribeRoom = function () {
       sb.removeChannel(channel);
     };
-
     state.lobbyPlayersPollIntervalId = setInterval(function () {
       if (!state.roomId) return;
       refreshLobbyPlayers();
     }, 2000);
-
     var lobbyPollMs = 1500;
     state.lobbyRoundPollIntervalId = setInterval(function () {
       if (!state.roomId) return;
@@ -588,6 +588,160 @@
       });
   }
 
+  function startRoundTimerPhase() {
+    var startReal = Date.now();
+    var liveTimerEl = document.getElementById("round-live-timer");
+    function hideLiveTimer() {
+      if (state.liveTimerInterval != null) {
+        clearInterval(state.liveTimerInterval);
+        state.liveTimerInterval = null;
+      }
+      if (state.timerBgmAudio) {
+        state.timerBgmAudio.pause();
+        state.timerBgmAudio = null;
+      }
+    }
+    state.liveTimerInterval = setInterval(function () {
+      var elapsed = (Date.now() - startReal) / 1000;
+      if (elapsed >= 3) {
+        if (state.liveTimerInterval != null) {
+          clearInterval(state.liveTimerInterval);
+          state.liveTimerInterval = null;
+        }
+        if (liveTimerEl) liveTimerEl.textContent = "??:??";
+        document.getElementById("btn-press").disabled = false;
+        return;
+      }
+      var s = elapsed.toFixed(2);
+      var parts = s.split(".");
+      if (liveTimerEl) liveTimerEl.textContent = parts[0].padStart(2, "0") + ":" + (parts[1] || "00").slice(0, 2);
+    }, 50);
+    try {
+      if (BGM_SOURCES.length > 0) {
+        var bgmIdx = (state.currentRound && state.currentRound.id != null)
+          ? hashStringToIndex(String(state.currentRound.id), BGM_SOURCES.length)
+          : (state.bgmRoundIndex % BGM_SOURCES.length);
+        state.bgmRoundIndex += 1;
+        var src = BGM_SOURCES[bgmIdx];
+        if (src) {
+          state.timerBgmAudio = new Audio(src);
+          state.timerBgmAudio.loop = true;
+          state.timerBgmAudio.volume = BGM_VOLUME;
+          if (!state.bgmMuted) {
+            var p = state.timerBgmAudio.play();
+            if (p && typeof p.then === "function") {
+              p.then(function () { state.bgmPlayPending = false; }).catch(function () { state.bgmPlayPending = true; });
+            }
+          }
+        }
+      }
+    } catch (e) {}
+    if (state.roundPressesPollIntervalId != null) {
+      clearInterval(state.roundPressesPollIntervalId);
+      state.roundPressesPollIntervalId = null;
+    }
+    refreshRoundPressesDisplay();
+    state.roundPressesPollIntervalId = setInterval(refreshRoundPressesDisplay, PRESS_POLL_MS);
+    document.getElementById("btn-press").onclick = function () {
+      if (state.timerBgmAudio && !state.bgmMuted) {
+        state.timerBgmAudio.play().catch(function () {});
+        state.bgmPlayPending = false;
+      }
+      hideLiveTimer();
+      document.getElementById("btn-press").disabled = true;
+      document.getElementById("btn-press").onclick = null;
+      var sb = getSupabase();
+      if (sb && state.currentRound) {
+        sb.from("round_presses").insert({
+          round_id: state.currentRound.id,
+          client_id: state.clientId
+        }).then(function () {
+          refreshRoundPressesDisplay();
+        });
+      }
+      if (state.waitAllPressesIntervalId != null) {
+        clearInterval(state.waitAllPressesIntervalId);
+        state.waitAllPressesIntervalId = null;
+      }
+      var roundId = state.currentRound.id;
+      state.waitAllPressesIntervalId = setInterval(function () {
+        if (!sb || !state.currentRound || state.currentRound.id !== roundId) return;
+        sb.from("round_presses").select("client_id").eq("round_id", roundId).then(function (pressRes) {
+          sb.from("room_players").select("client_id").eq("room_id", state.roomId).then(function (playerRes) {
+            var pressCount = (pressRes.data || []).length;
+            var playerCount = (playerRes.data || []).length;
+            if (playerCount > 0 && pressCount >= playerCount) {
+              if (state.waitAllPressesIntervalId != null) {
+                clearInterval(state.waitAllPressesIntervalId);
+                state.waitAllPressesIntervalId = null;
+              }
+              showResult();
+            }
+          });
+        });
+        }
+      }, PRESS_POLL_MS);
+    };
+  }
+
+  function runCountdownToRoundStart(startAt, onComplete) {
+    var countdownEl = document.getElementById("round-countdown");
+    var countdownOverlayEl = document.getElementById("round-countdown-overlay");
+    countdownEl.textContent = "";
+    if (countdownOverlayEl) countdownOverlayEl.classList.add("hidden");
+    getServerTimeMs()
+      .then(function (t) {
+        var serverOffset = t.serverNowMs - t.clientNowMs;
+        var delay = Math.max(0, startAt - t.serverNowMs);
+        var countdownSteps = [
+          { ms: 3000, num: 4 },
+          { ms: 2000, num: 3 },
+          { ms: 1000, num: 2 },
+          { ms: 0, num: 1 }
+        ];
+        var countdownIntervalId = null;
+        var lastCountdownNum = null;
+        countdownIntervalId = setInterval(function () {
+          var remaining = startAt - (Date.now() + serverOffset);
+          var i;
+          for (i = 0; i < countdownSteps.length; i++) {
+            if (remaining > countdownSteps[i].ms) {
+              if (lastCountdownNum !== countdownSteps[i].num) {
+                lastCountdownNum = countdownSteps[i].num;
+                playCountdownBeep(BEEP_FREQ_COUNTDOWN, BEEP_DURATION_MS);
+              }
+              countdownEl.textContent = String(countdownSteps[i].num);
+              if (countdownOverlayEl) countdownOverlayEl.classList.remove("hidden");
+              return;
+            }
+          }
+          if (lastCountdownNum !== 0) {
+            lastCountdownNum = 0;
+            playCountdownBeep(BEEP_FREQ_GO, BEEP_DURATION_GO_MS);
+          }
+          if (countdownIntervalId != null) {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+          }
+          countdownEl.textContent = "";
+          if (countdownOverlayEl) countdownOverlayEl.classList.add("hidden");
+        }, 50);
+        setTimeout(function () {
+          if (countdownIntervalId != null) {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+          }
+          countdownEl.textContent = "";
+          if (countdownOverlayEl) countdownOverlayEl.classList.add("hidden");
+          onComplete();
+        }, delay);
+      })
+      .catch(function () {
+        var delay = Math.max(0, startAt - Date.now());
+        setTimeout(onComplete, delay);
+      });
+  }
+
   function onRoundStarted(round) {
     if (state.currentRound && state.currentRound.id === round.id) return;
     if (state.pollRoundIntervalId != null) {
@@ -627,158 +781,7 @@
     }
 
     var startAt = new Date(round.start_at).getTime();
-    var countdownEl = document.getElementById("round-countdown");
-    var countdownOverlayEl = document.getElementById("round-countdown-overlay");
-    countdownEl.textContent = "";
-    if (countdownOverlayEl) countdownOverlayEl.classList.add("hidden");
-
-    function startRoundTimerPhase() {
-      var startReal = Date.now();
-      var liveTimerEl = document.getElementById("round-live-timer");
-      function hideLiveTimer() {
-        if (state.liveTimerInterval != null) {
-          clearInterval(state.liveTimerInterval);
-          state.liveTimerInterval = null;
-        }
-        if (state.timerBgmAudio) {
-          state.timerBgmAudio.pause();
-          state.timerBgmAudio = null;
-        }
-      }
-      state.liveTimerInterval = setInterval(function () {
-        var elapsed = (Date.now() - startReal) / 1000;
-        if (elapsed >= 3) {
-          if (state.liveTimerInterval != null) {
-            clearInterval(state.liveTimerInterval);
-            state.liveTimerInterval = null;
-          }
-          if (liveTimerEl) liveTimerEl.textContent = "??:??";
-          return;
-        }
-        var s = elapsed.toFixed(2);
-        var parts = s.split(".");
-        if (liveTimerEl) liveTimerEl.textContent = parts[0].padStart(2, "0") + ":" + (parts[1] || "00").slice(0, 2);
-      }, 50);
-      document.getElementById("btn-press").disabled = false;
-      try {
-        if (BGM_SOURCES.length > 0) {
-          var bgmIdx = (state.currentRound && state.currentRound.id != null)
-            ? hashStringToIndex(String(state.currentRound.id), BGM_SOURCES.length)
-            : (state.bgmRoundIndex % BGM_SOURCES.length);
-          state.bgmRoundIndex += 1;
-          var src = BGM_SOURCES[bgmIdx];
-          if (src) {
-          state.timerBgmAudio = new Audio(src);
-          state.timerBgmAudio.loop = true;
-          state.timerBgmAudio.volume = BGM_VOLUME;
-          if (!state.bgmMuted) {
-            var p = state.timerBgmAudio.play();
-            if (p && typeof p.then === "function") {
-              p.then(function () { state.bgmPlayPending = false; }).catch(function () { state.bgmPlayPending = true; });
-            }
-          }
-        }
-        }
-      } catch (e) {}
-      if (state.roundPressesPollIntervalId != null) {
-        clearInterval(state.roundPressesPollIntervalId);
-        state.roundPressesPollIntervalId = null;
-      }
-      refreshRoundPressesDisplay();
-      state.roundPressesPollIntervalId = setInterval(refreshRoundPressesDisplay, PRESS_POLL_MS);
-      document.getElementById("btn-press").onclick = function () {
-        if (state.timerBgmAudio && !state.bgmMuted) {
-          state.timerBgmAudio.play().catch(function () {});
-          state.bgmPlayPending = false;
-        }
-        hideLiveTimer();
-        document.getElementById("btn-press").disabled = true;
-        document.getElementById("btn-press").onclick = null;
-        var sb = getSupabase();
-        if (sb && state.currentRound) {
-          sb.from("round_presses").insert({
-            round_id: state.currentRound.id,
-            client_id: state.clientId
-          }).then(function () {
-            refreshRoundPressesDisplay();
-          });
-        }
-        if (state.waitAllPressesIntervalId != null) {
-          clearInterval(state.waitAllPressesIntervalId);
-          state.waitAllPressesIntervalId = null;
-        }
-        var roundId = state.currentRound.id;
-        state.waitAllPressesIntervalId = setInterval(function () {
-          if (!sb || !state.currentRound || state.currentRound.id !== roundId) return;
-          sb.from("round_presses").select("client_id").eq("round_id", roundId).then(function (pressRes) {
-            sb.from("room_players").select("client_id").eq("room_id", state.roomId).then(function (playerRes) {
-              var pressCount = (pressRes.data || []).length;
-              var playerCount = (playerRes.data || []).length;
-              if (playerCount > 0 && pressCount >= playerCount) {
-                if (state.waitAllPressesIntervalId != null) {
-                  clearInterval(state.waitAllPressesIntervalId);
-                  state.waitAllPressesIntervalId = null;
-                }
-                showResult();
-              }
-            });
-          });
-        }, PRESS_POLL_MS);
-      };
-    }
-
-    getServerTimeMs()
-      .then(function (t) {
-        var serverOffset = t.serverNowMs - t.clientNowMs;
-        var delay = Math.max(0, startAt - t.serverNowMs);
-        var countdownSteps = [
-          { ms: 3000, num: 4 },
-          { ms: 2000, num: 3 },
-          { ms: 1000, num: 2 },
-          { ms: 0, num: 1 }
-        ];
-        var countdownIntervalId = null;
-        var lastCountdownNum = null;
-        countdownIntervalId = setInterval(function () {
-          var remaining = startAt - (Date.now() + serverOffset);
-          var i;
-          for (i = 0; i < countdownSteps.length; i++) {
-            if (remaining > countdownSteps[i].ms) {
-              if (lastCountdownNum !== countdownSteps[i].num) {
-                lastCountdownNum = countdownSteps[i].num;
-                playCountdownBeep(BEEP_FREQ_COUNTDOWN, BEEP_DURATION_MS);
-              }
-              countdownEl.textContent = String(countdownSteps[i].num);
-              if (countdownOverlayEl) countdownOverlayEl.classList.remove("hidden");
-              return;
-            }
-          }
-          if (lastCountdownNum !== 0) {
-            lastCountdownNum = 0;
-            playCountdownBeep(BEEP_FREQ_GO, BEEP_DURATION_GO_MS);
-          }
-          if (countdownIntervalId != null) {
-            clearInterval(countdownIntervalId);
-            countdownIntervalId = null;
-          }
-          countdownEl.textContent = "";
-          if (countdownOverlayEl) countdownOverlayEl.classList.add("hidden");
-        }, 50);
-
-        setTimeout(function () {
-          if (countdownIntervalId != null) {
-            clearInterval(countdownIntervalId);
-            countdownIntervalId = null;
-          }
-          countdownEl.textContent = "";
-          if (countdownOverlayEl) countdownOverlayEl.classList.add("hidden");
-          startRoundTimerPhase();
-        }, delay);
-      })
-      .catch(function () {
-        var delay = Math.max(0, startAt - Date.now());
-        setTimeout(startRoundTimerPhase, delay);
-      });
+    runCountdownToRoundStart(startAt, startRoundTimerPhase);
   }
 
   function showResult() {
@@ -855,6 +858,37 @@
     setTimeout(pollResult, 2000);
   }
 
+  function applyRoundEndRanks() {
+    function rankLabel(n) {
+      var s = n % 10, t = n % 100;
+      if (s === 1 && t !== 11) return n + "st";
+      if (s === 2 && t !== 12) return n + "nd";
+      if (s === 3 && t !== 13) return n + "rd";
+      return n + "th";
+    }
+    var winCounts = state.winCounts || {};
+    var resultOrder = state.roundResultOrder || [];
+    document.querySelectorAll(".round-player-zone[data-client-id]").forEach(function (zone) {
+      var cid = zone.dataset.clientId;
+      var winsEl = zone.querySelector(".round-zone-wins");
+      if (winsEl && cid) winsEl.textContent = "( " + (winCounts[cid] || 0) + "승 )";
+      var rankIdx = resultOrder.findIndex(function (x) { return x.client_id === cid; });
+      var rankEl = zone.querySelector(".round-zone-rank");
+      if (rankIdx >= 0) {
+        var rankNum = rankIdx + 1;
+        if (!rankEl) {
+          rankEl = document.createElement("div");
+          zone.insertBefore(rankEl, zone.firstChild);
+        }
+        rankEl.className = "round-zone-rank rank-" + rankNum;
+        rankEl.textContent = rankLabel(rankNum);
+        rankEl.style.display = "";
+      } else if (rankEl) {
+        rankEl.style.display = "none";
+      }
+    });
+  }
+
   function showRoundEnd() {
     if (state.timerBgmAudio) {
       state.timerBgmAudio.pause();
@@ -889,41 +923,14 @@
         leaveRoom();
       };
     }
-    function rankLabel(n) {
-      var s = n % 10, t = n % 100;
-      if (s === 1 && t !== 11) return n + "st";
-      if (s === 2 && t !== 12) return n + "nd";
-      if (s === 3 && t !== 13) return n + "rd";
-      return n + "th";
-    }
-    var winCounts = state.winCounts || {};
     var winnerId = state.lastRoundWinnerId || null;
-    var resultOrder = state.roundResultOrder || [];
     if (winnerId && state.clientId === winnerId) {
       try {
         var winAudio = new Audio("sounds/win.mp3");
         winAudio.play();
       } catch (e) {}
     }
-    document.querySelectorAll(".round-player-zone[data-client-id]").forEach(function (zone) {
-      var cid = zone.dataset.clientId;
-      var winsEl = zone.querySelector(".round-zone-wins");
-      if (winsEl && cid) winsEl.textContent = "( " + (winCounts[cid] || 0) + "승 )";
-      var rankIdx = resultOrder.findIndex(function (x) { return x.client_id === cid; });
-      var rankEl = zone.querySelector(".round-zone-rank");
-      if (rankIdx >= 0) {
-        var rankNum = rankIdx + 1;
-        if (!rankEl) {
-          rankEl = document.createElement("div");
-          zone.insertBefore(rankEl, zone.firstChild);
-        }
-        rankEl.className = "round-zone-rank rank-" + rankNum;
-        rankEl.textContent = rankLabel(rankNum);
-        rankEl.style.display = "";
-      } else if (rankEl) {
-        rankEl.style.display = "none";
-      }
-    });
+    applyRoundEndRanks();
   }
 
   function leaveRoom() {
