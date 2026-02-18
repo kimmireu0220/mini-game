@@ -500,13 +500,13 @@
       pNumSpan.textContent = "P" + num;
       nameEl.appendChild(pNumSpan);
       nameEl.appendChild(document.createTextNode(" " + p.nickname));
-      zone.appendChild(nameEl);
       if (list.length > 1) {
-        var winsEl = document.createElement("div");
-        winsEl.className = "round-zone-wins";
-        winsEl.textContent = "Win: " + (winCounts[p.client_id] || 0);
-        zone.appendChild(winsEl);
+        var winsSpan = document.createElement("span");
+        winsSpan.className = "round-zone-wins";
+        winsSpan.textContent = " (" + (winCounts[p.client_id] || 0) + "승)";
+        nameEl.appendChild(winsSpan);
       }
+      zone.appendChild(nameEl);
       var timeEl = document.createElement("div");
       timeEl.className = "round-zone-time";
       timeEl.style.display = "none";
@@ -857,7 +857,7 @@
     document.querySelectorAll(".round-player-zone[data-client-id]").forEach(function (zone) {
       var cid = zone.dataset.clientId;
       var winsEl = zone.querySelector(".round-zone-wins");
-      if (winsEl && cid) winsEl.textContent = "Win: " + (winCounts[cid] || 0);
+      if (winsEl && cid) winsEl.textContent = " (" + (winCounts[cid] || 0) + "승)";
       var rankIdx = resultOrder.findIndex(function (x) { return x.client_id === cid; });
       var rankEl = zone.querySelector(".round-zone-rank");
       if (rankIdx >= 0) {
