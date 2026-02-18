@@ -1,5 +1,5 @@
 // Supabase Edge Function: start-round
-// 호스트만 호출. rounds에 start_at = now() + 3초, target_seconds = 5~10 랜덤 insert.
+// 호스트만 호출. rounds에 start_at = now() + 4초, target_seconds = 5~10 랜덤 insert.
 // Realtime이 rounds 테이블 변경을 구독자에게 전파함.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";

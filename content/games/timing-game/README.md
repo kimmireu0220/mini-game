@@ -5,7 +5,7 @@
 ## 설정
 
 1. Supabase 프로젝트를 만들고 [supabase/](supabase/) 안의 SQL을 순서대로 실행하세요.
-2. Edge Function `start-round`를 배포하세요. (`supabase/functions/start-round/`)
+2. Edge Function `start-round`, `get-server-time`을 배포하세요. (`supabase/functions/start-round/`, `supabase/functions/get-server-time/`)
 3. **Supabase 키**: 프로젝트 루트 `.env`에 아래를 넣으세요. 업로드 시 `config.example.js`의 플레이스홀더가 이 값으로 치환됩니다.
    ```
    SUPABASE_URL=https://your-project.supabase.co

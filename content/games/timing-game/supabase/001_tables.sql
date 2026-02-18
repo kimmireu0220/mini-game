@@ -26,7 +26,7 @@ create table if not exists public.room_players (
 
 create index if not exists idx_room_players_room_id on public.room_players(room_id);
 
--- rounds: 라운드 (start_at = 서버 시각, Edge Function에서 now()+3 등으로 설정)
+-- rounds: 라운드 (start_at = 서버 시각, Edge Function에서 now()+4초 등으로 설정)
 create table if not exists public.rounds (
   id uuid primary key default gen_random_uuid(),
   room_id uuid not null references public.rooms(id) on delete cascade,
