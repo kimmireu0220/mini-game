@@ -536,7 +536,7 @@
       if (list.length > 1) {
         var winsSpan = document.createElement("span");
         winsSpan.className = "round-zone-wins";
-        winsSpan.textContent = "(" + (winCounts[p.client_id] || 0) + "승)";
+        winsSpan.textContent = "( " + (winCounts[p.client_id] || 0) + "승 )";
         nameEl.appendChild(winsSpan);
       }
       zone.appendChild(nameEl);
@@ -904,7 +904,7 @@
     document.querySelectorAll(".round-player-zone[data-client-id]").forEach(function (zone) {
       var cid = zone.dataset.clientId;
       var winsEl = zone.querySelector(".round-zone-wins");
-      if (winsEl && cid) winsEl.textContent = "(" + (winCounts[cid] || 0) + "승)";
+      if (winsEl && cid) winsEl.textContent = "( " + (winCounts[cid] || 0) + "승 )";
       var rankIdx = resultOrder.findIndex(function (x) { return x.client_id === cid; });
       var rankEl = zone.querySelector(".round-zone-rank");
       if (rankIdx >= 0) {
