@@ -10,7 +10,7 @@
   var BEEP_DURATION_GO_MS = 180;
   var BGM_VOLUME = 0.3;
   var PRESS_POLL_MS = 500;
-  var BGM_SOURCES = (typeof __BGM_SOURCES_ARRAY__ !== "undefined" ? __BGM_SOURCES_ARRAY__ : ["sounds/bgm/timer-bgm.mp3", "sounds/bgm/timer-bgm2.mp3", "sounds/bgm/timer-bgm3.mp3", "sounds/bgm/timer-bgm4.mp3", "sounds/bgm/timer-bgm5.mp3", "sounds/bgm/timer-bgm6.mp3"]);
+  var BGM_SOURCES = (typeof __BGM_SOURCES_ARRAY__ !== "undefined" ? __BGM_SOURCES_ARRAY__ : ["sounds/bgm/timer-1.mp3", "sounds/bgm/timer-2.mp3", "sounds/bgm/timer-3.mp3", "sounds/bgm/timer-4.mp3", "sounds/bgm/timer-5.mp3", "sounds/bgm/timer-6.mp3"]);
   var countdownAudioContext = null;
 
   function playCountdownBeep(frequency, durationMs) {

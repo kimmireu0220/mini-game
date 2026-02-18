@@ -82,6 +82,9 @@ def _inline_assets(html_content, html_path):
         inline_assets_list = [
             ("images/win-badge.png", "image/png"),
             ("images/host-icon.png", "image/png"),
+            ("images/gold-medal.png", "image/png"),
+            ("images/silver-medal.png", "image/png"),
+            ("images/bronze-medal.png", "image/png"),
             ("sounds/win.mp3", "audio/mpeg"),
             ("images/bgm-on.png", "image/png"),
             ("images/bgm-off.png", "image/png"),
