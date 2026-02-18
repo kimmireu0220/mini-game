@@ -109,9 +109,23 @@
     }
 
     document.getElementById("btn-create-room").onclick = function () {
+      var nick = document.getElementById("input-nickname").value.trim();
+      if (!nick) {
+        alert("닉네임을 입력한 뒤 진행하세요.");
+        return;
+      }
+      state.nickname = nick;
+      setNickname(nick);
       showScreen("screen-create");
     };
     document.getElementById("btn-join-room").onclick = function () {
+      var nick = document.getElementById("input-nickname").value.trim();
+      if (!nick) {
+        alert("닉네임을 입력한 뒤 진행하세요.");
+        return;
+      }
+      state.nickname = nick;
+      setNickname(nick);
       var params = new URLSearchParams(window.location.search);
       var code = params.get("code") || "";
       document.getElementById("input-join-code").value = code;
@@ -161,10 +175,12 @@
 
   function createRoom() {
     var nick = document.getElementById("input-nickname").value.trim();
-    if (nick) {
-      state.nickname = nick;
-      setNickname(nick);
+    if (!nick) {
+      alert("닉네임을 입력하세요.");
+      return;
     }
+    state.nickname = nick;
+    setNickname(nick);
     var name = document.getElementById("input-room-name").value.trim() || "대기실";
     var sb = getSupabase();
     if (!sb) return;
@@ -210,10 +226,12 @@
 
   function joinRoom() {
     var nick = document.getElementById("input-nickname").value.trim();
-    if (nick) {
-      state.nickname = nick;
-      setNickname(nick);
+    if (!nick) {
+      alert("닉네임을 입력하세요.");
+      return;
     }
+    state.nickname = nick;
+    setNickname(nick);
     var code = document.getElementById("input-join-code").value.trim().replace(/\D/g, "").slice(0, 6);
     if (code.length !== 6) {
       alert("6자리 방 코드를 입력하세요.");
