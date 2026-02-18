@@ -485,6 +485,8 @@
     var sb = getSupabase();
     var cfg = getConfig();
     if (!sb || !state.roomId || !state.isHost) return;
+    var btnStart = document.getElementById("btn-start-round");
+    if (btnStart) btnStart.disabled = true;
 
     fetch(cfg.SUPABASE_URL + "/functions/v1/start-round", {
       method: "POST",
@@ -496,12 +498,14 @@
       })
       .then(function (data) {
         if (data.error) {
+          if (btnStart) btnStart.disabled = false;
           alert(data.error);
           return;
         }
         startRoundPollingFallback();
       })
       .catch(function (e) {
+        if (btnStart) btnStart.disabled = false;
         alert("시작 실패: " + e.message);
       });
   }
