@@ -950,12 +950,13 @@
       var rankIdx = resultOrder.findIndex(function (x) { return x.client_id === cid; });
       var rankEl = zone.querySelector(".round-zone-rank");
       if (rankIdx >= 0) {
+        var rankNum = rankIdx + 1;
         if (!rankEl) {
           rankEl = document.createElement("div");
-          rankEl.className = "round-zone-rank";
           zone.insertBefore(rankEl, zone.firstChild);
         }
-        rankEl.textContent = rankLabel(rankIdx + 1);
+        rankEl.className = "round-zone-rank rank-" + rankNum;
+        rankEl.textContent = rankLabel(rankNum);
         rankEl.style.display = "";
       } else if (rankEl) {
         rankEl.style.display = "none";
@@ -964,13 +965,15 @@
       if (!slot || !slot.classList.contains("round-player-slot")) return;
       var badge = slot.querySelector(".round-zone-win-badge");
       if (badge) badge.remove();
-      var playerCount = state.roundPlayers ? state.roundPlayers.length : 0;
-      if (playerCount > 1 && winnerId && cid === winnerId) {
-        var winBadge = document.createElement("img");
-        winBadge.className = "round-zone-win-badge";
-        winBadge.src = "images/win-badge.png";
-        winBadge.alt = "Win!";
-        slot.insertBefore(winBadge, zone);
+      if (rankIdx >= 0) {
+        var medalSrc = rankIdx === 0 ? "images/gold-medal.png" : rankIdx === 1 ? "images/silver-medal.png" : rankIdx === 2 ? "images/bronze-medal.png" : null;
+        if (medalSrc) {
+          var winBadge = document.createElement("img");
+          winBadge.className = "round-zone-win-badge";
+          winBadge.src = medalSrc;
+          winBadge.alt = rankIdx === 0 ? "1등" : rankIdx === 1 ? "2등" : "3등";
+          slot.insertBefore(winBadge, zone);
+        }
       }
     });
   }

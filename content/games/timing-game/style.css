@@ -236,10 +236,18 @@
 .game-page-wrapper .round-player-zone .round-zone-rank {
   font-size: 1rem;
   font-weight: 700;
-  color: #f5d033;
   margin-bottom: 4px;
   text-align: center;
 }
+/* 1~3등: 금·은·동 메달 색 */
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-1 { color: #ffd700; }
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-2 { color: #c0c0c0; }
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-3 { color: #b87333; }
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-4,
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-5,
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-6,
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-7,
+.game-page-wrapper .round-player-zone .round-zone-rank.rank-8 { color: rgba(255, 255, 255, 0.85); }
 .game-page-wrapper .round-player-zone .round-zone-name {
   display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 600; margin-bottom: 6px;
 }
