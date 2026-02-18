@@ -1,9 +1,6 @@
 # blog-deploy (WordPress 업로드·동기화)
 requests>=2.28.0
 
-# e2e (Playwright 확인)
-playwright>=1.40.0
-
 # pre-commit (커밋 전 에러·린트 검사)
 pre-commit>=3.6.0
 

@@ -11,15 +11,15 @@
 
 커밋 전에 **스킵 없이** 다음을 **항상 전부** 검사합니다.
 
-1. **문법** – `py_compile` (blog-deploy, screenshot-capture, e2e)
+1. **문법** – `py_compile` (blog-deploy)
 2. **린트** – `ruff check` (미설치 시 실패)
-3. **import** – config, wordpress_client, e2e.checks (의존성 없으면 실패)
+3. **import** – config, paths, wordpress_client (의존성 없으면 실패)
 
 훅은 `.venv/bin/python`이 있으면 venv로 실행해 ruff·requests 등이 있는 환경에서 검사합니다.
 
 ### 환경 갖추기 (한 번에)
 
-venv + requirements + playwright chromium + pre-commit 훅 + 검사 1회까지 한 번에:
+venv + requirements + pre-commit 훅 + 검사 1회까지 한 번에:
 
 ```bash
 .venv/bin/python scripts/ensure_env.py
@@ -31,7 +31,6 @@ venv + requirements + playwright chromium + pre-commit 훅 + 검사 1회까지 �
 
 ```bash
 .venv/bin/pip install -r requirements.txt
-.venv/bin/playwright install chromium
 .venv/bin/python -m pre_commit install
 ```
 

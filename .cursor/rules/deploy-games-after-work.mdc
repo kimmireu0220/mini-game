@@ -8,7 +8,7 @@ alwaysApply: true
 사용자가 지시한 작업이 끝날 때마다 **블로그에 게임 배포**까지 해야 한다.
 
 - **실행**: 프로젝트 루트에서 `python blog-deploy/upload_games.py`
-- **시점**: 게임 관련 수정(content/games/, blog-deploy/, screenshot-capture/ 등)을 마친 뒤, 응답을 보내기 전에 한 번 실행
+- **시점**: 게임 관련 수정(content/games/, blog-deploy/ 등)을 마친 뒤, 응답을 보내기 전에 한 번 실행
 - **실패해도**: 사용자에게 배포 시도 여부와 결과(성공/실패)를 알린다
 
 잊지 말고 작업 끝날 때마다 배포까지 수행할 것.

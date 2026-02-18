@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DIRS_TO_CHECK = ["blog-deploy", "screenshot-capture", "e2e"]
+DIRS_TO_CHECK = ["blog-deploy"]
 
 
 def run_py_compile():

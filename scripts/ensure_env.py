@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-커밋 전 검사·e2e를 위해 필요한 환경을 확인하고, 없으면 설치합니다.
+커밋 전 검사를 위해 필요한 환경을 확인하고, 없으면 설치합니다.
 실행: python scripts/ensure_env.py  (프로젝트 루트에서)
 """
 
@@ -26,7 +26,7 @@ def run(cmd, check=True, capture=True):
 
 
 def main():
-    """venv·requirements·playwright·pre-commit·검사 1회까지 수행."""
+    """venv·requirements·pre-commit·검사 1회까지 수행."""
     print("🔍 환경 확인...")
 
     # 1) venv
@@ -43,22 +43,7 @@ def main():
         run([pip, "install", "-q", "-r", str(REQUIREMENTS)])
         print("   ✅ requirements 설치됨")
 
-    # 3) playwright 브라우저 (e2e용)
-    print("   📦 Playwright Chromium 확인...")
-    r = subprocess.run(
-        [python, "-m", "playwright", "install", "chromium"],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    out = (r.stderr or "") + (r.stdout or "")
-    if r.returncode and "is already installed" not in out:
-        print("   ⚠️  playwright install chromium 실패 (e2e는 수동 실행)")
-    else:
-        print("   ✅ Chromium 준비됨")
-
-    # 4) pre-commit 훅 (venv의 pre-commit 사용)
+    # 3) pre-commit 훅 (venv의 pre-commit 사용)
     print("   📦 pre-commit 훅 확인...")
     r = subprocess.run(
         [python, "-m", "pre_commit", "install"],
@@ -72,7 +57,7 @@ def main():
         subprocess.run([python, "-m", "pre_commit", "install"], cwd=ROOT, check=True)
     print("   ✅ pre-commit 훅 등록됨")
 
-    # 5) 검사 1회 실행
+    # 4) 검사 1회 실행
     print("   🧪 커밋 전 검사 1회 실행...")
     r = subprocess.run(
         [python, "scripts/check_before_commit.py"],

@@ -6,5 +6,3 @@
 __pycache__/
 .venv/
 .ruff_cache/
-e2e/screenshots/*.png
-**/e2e-report*.md

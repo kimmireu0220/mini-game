@@ -1,5 +1,3 @@
-# blog-deploy, screenshot-capture, e2e: sys.path 조작 후 import 필요 → E402 허용
+# blog-deploy: sys.path 조작 후 import 필요 → E402 허용
 [lint.per-file-ignores]
 "blog-deploy/**" = ["E402"]
-"screenshot-capture/**" = ["E402"]
-"e2e/**" = ["E402"]
