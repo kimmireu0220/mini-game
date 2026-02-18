@@ -20,6 +20,12 @@
   var BGM_SOURCES = (typeof __BGM_SOURCES_ARRAY__ !== "undefined" ? __BGM_SOURCES_ARRAY__ : ["sounds/bgm/timer-1.mp3", "sounds/bgm/timer-2.mp3", "sounds/bgm/timer-3.mp3", "sounds/bgm/timer-4.mp3", "sounds/bgm/timer-5.mp3", "sounds/bgm/timer-6.mp3"]);
   var countdownAudioContext = null;
 
+  function hashStringToIndex(str, max) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i) | 0;
+    return Math.abs(h) % max;
+  }
+
   function playCountdownBeep(frequency, durationMs) {
     try {
       if (!countdownAudioContext) {
@@ -119,7 +125,10 @@
         updateBgmButton();
         if (state.timerBgmAudio) {
           if (state.bgmMuted) state.timerBgmAudio.pause();
-          else state.timerBgmAudio.play();
+          else {
+            var playPromise = state.timerBgmAudio.play();
+            if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
+          }
         }
       };
     }
@@ -627,13 +636,19 @@
       document.getElementById("btn-press").disabled = false;
       try {
         var bgmIdx = (state.currentRound && state.currentRound.id != null)
-          ? (state.currentRound.id % BGM_SOURCES.length)
+          ? hashStringToIndex(String(state.currentRound.id), BGM_SOURCES.length)
           : (state.bgmRoundIndex % BGM_SOURCES.length);
         state.bgmRoundIndex += 1;
-        state.timerBgmAudio = new Audio(BGM_SOURCES[bgmIdx]);
-        state.timerBgmAudio.loop = true;
-        state.timerBgmAudio.volume = BGM_VOLUME;
-        if (!state.bgmMuted) state.timerBgmAudio.play();
+        var src = BGM_SOURCES[bgmIdx];
+        if (src) {
+          state.timerBgmAudio = new Audio(src);
+          state.timerBgmAudio.loop = true;
+          state.timerBgmAudio.volume = BGM_VOLUME;
+          if (!state.bgmMuted) {
+            var p = state.timerBgmAudio.play();
+            if (p && typeof p.catch === "function") p.catch(function () {});
+          }
+        }
       } catch (e) {}
       if (state.roundPressesPollIntervalId != null) {
         clearInterval(state.roundPressesPollIntervalId);
