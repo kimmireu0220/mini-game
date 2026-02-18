@@ -501,18 +501,21 @@
       var zone = document.createElement("div");
       zone.className = "round-player-zone" + (p.client_id === state.clientId ? " me" : "");
       zone.dataset.clientId = p.client_id;
-      var nameEl = document.createElement("div");
-      nameEl.className = "round-zone-name";
       var num = i + 1;
       var pNumSpan = document.createElement("span");
       pNumSpan.className = "round-zone-p-num num-" + num;
       pNumSpan.textContent = "P" + num;
-      nameEl.appendChild(pNumSpan);
-      nameEl.appendChild(document.createTextNode(" " + p.nickname));
+      zone.appendChild(pNumSpan);
+      var nameEl = document.createElement("div");
+      nameEl.className = "round-zone-name";
+      var nameLine = document.createElement("div");
+      nameLine.className = "round-zone-name-line";
+      nameLine.appendChild(document.createTextNode(p.nickname));
+      nameEl.appendChild(nameLine);
       if (list.length > 1) {
         var winsSpan = document.createElement("span");
         winsSpan.className = "round-zone-wins";
-        winsSpan.textContent = " (" + (winCounts[p.client_id] || 0) + "승)";
+        winsSpan.textContent = "(" + (winCounts[p.client_id] || 0) + "승)";
         nameEl.appendChild(winsSpan);
       }
       zone.appendChild(nameEl);
@@ -872,7 +875,7 @@
     document.querySelectorAll(".round-player-zone[data-client-id]").forEach(function (zone) {
       var cid = zone.dataset.clientId;
       var winsEl = zone.querySelector(".round-zone-wins");
-      if (winsEl && cid) winsEl.textContent = " (" + (winCounts[cid] || 0) + "승)";
+      if (winsEl && cid) winsEl.textContent = "(" + (winCounts[cid] || 0) + "승)";
       var rankIdx = resultOrder.findIndex(function (x) { return x.client_id === cid; });
       var rankEl = zone.querySelector(".round-zone-rank");
       if (rankIdx >= 0) {
