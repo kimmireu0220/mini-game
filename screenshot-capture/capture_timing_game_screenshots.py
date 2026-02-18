@@ -274,19 +274,6 @@ def main():
                   if (ee) { ee.textContent = errors[i] || ''; ee.style.display = ''; }
                   if (winsEl) winsEl.textContent = 'Win: ' + (i === 0 ? 1 : 0);
                 });
-                var firstSlot = container.querySelector('.round-player-slot');
-                if (firstSlot) {
-                  var existing = firstSlot.querySelector('.round-zone-win-badge');
-                  if (existing) existing.remove();
-                  var zone = firstSlot.querySelector('.round-player-zone');
-                  if (zone) {
-                    var winBadge = document.createElement('img');
-                    winBadge.className = 'round-zone-win-badge';
-                    winBadge.src = 'images/win-badge.png';
-                    winBadge.alt = 'Win!';
-                    firstSlot.insertBefore(winBadge, zone);
-                  }
-                }
               }
               var btn = document.getElementById('btn-press');
               if (btn) btn.style.display = 'none';
@@ -298,13 +285,7 @@ def main():
               if (timer) timer.style.display = 'none';
             }"""
             )
-            page.wait_for_timeout(300)
-            page.wait_for_function(
-                "document.querySelector('.round-zone-win-badge') && "
-                "document.querySelector('.round-zone-win-badge').complete === true",
-                timeout=3000,
-            )
-            page.wait_for_timeout(200)
+            page.wait_for_timeout(500)
             page.screenshot(path=os.path.join(OUT_DIR, "09-round-result.png"))
             print("저장: 09-round-result.png")
         except (TimeoutError, OSError, PlaywrightError) as e:

@@ -1,8 +1,15 @@
 (function () {
   "use strict";
 
-  var STORAGE_CLIENT_ID = "timing_game_client_id";
-  var STORAGE_NICKNAME = "timing_game_nickname";
+  var TimingGame = window.TimingGame;
+  var state = TimingGame.state;
+  var getConfig = TimingGame.getConfig;
+  var getSupabase = TimingGame.getSupabase;
+  var getNickname = TimingGame.getNickname;
+  var setNickname = TimingGame.setNickname;
+  var generateRoomCode = TimingGame.generateRoomCode;
+  var cleanupSubscriptions = TimingGame.cleanupSubscriptions;
+
   var COUNTDOWN_SEC = 3;
   var BEEP_FREQ_COUNTDOWN = 880;
   var BEEP_FREQ_GO = 1320;
@@ -33,38 +40,6 @@
     } catch (e) {}
   }
 
-  function getConfig() {
-    return window.TIMING_GAME_CONFIG || {};
-  }
-
-  function getSupabase() {
-    var cfg = getConfig();
-    if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) return null;
-    if (!window.supabase) return null;
-    return window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-  }
-
-  function getClientId() {
-    var id = localStorage.getItem(STORAGE_CLIENT_ID);
-    if (!id) {
-      id = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-        var r = (Math.random() * 16) | 0;
-        var v = c === "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
-      localStorage.setItem(STORAGE_CLIENT_ID, id);
-    }
-    return id;
-  }
-
-  function getNickname() {
-    return localStorage.getItem(STORAGE_NICKNAME) || "";
-  }
-
-  function setNickname(name) {
-    localStorage.setItem(STORAGE_NICKNAME, (name || "").trim());
-  }
-
   function showScreen(id) {
     document.querySelectorAll(".game-page-wrapper .screen").forEach(function (el) {
       el.classList.add("hidden");
@@ -72,29 +47,6 @@
     var el = document.getElementById(id);
     if (el) el.classList.remove("hidden");
   }
-
-  function generateRoomCode() {
-    var code = "";
-    for (var i = 0; i < 6; i++) code += Math.floor(Math.random() * 10);
-    return code;
-  }
-
-  var state = {
-    clientId: getClientId(),
-    nickname: getNickname(),
-    bgmMuted: false,
-    bgmRoundIndex: 0,
-    roomId: null,
-    roomCode: null,
-    roomName: null,
-    isHost: false,
-    unsubscribeRoom: null,
-    unsubscribeRounds: null,
-    unsubscribeRoomDeleted: null,
-    currentRound: null,
-    winCounts: {},
-    waitAllPressesIntervalId: null
-  };
 
   function initScreens() {
     var sb = getSupabase();
@@ -285,49 +237,6 @@
             enterLobby();
           });
       });
-  }
-
-  function cleanupSubscriptions() {
-    if (state.pollRoundIntervalId != null) {
-      clearInterval(state.pollRoundIntervalId);
-      state.pollRoundIntervalId = null;
-    }
-    if (state.lobbyRoundPollIntervalId != null) {
-      clearInterval(state.lobbyRoundPollIntervalId);
-      state.lobbyRoundPollIntervalId = null;
-    }
-    if (state.lobbyPlayersPollIntervalId != null) {
-      clearInterval(state.lobbyPlayersPollIntervalId);
-      state.lobbyPlayersPollIntervalId = null;
-    }
-    if (state.waitAllPressesIntervalId != null) {
-      clearInterval(state.waitAllPressesIntervalId);
-      state.waitAllPressesIntervalId = null;
-    }
-    if (state.roundPressesPollIntervalId != null) {
-      clearInterval(state.roundPressesPollIntervalId);
-      state.roundPressesPollIntervalId = null;
-    }
-    if (state.liveTimerInterval != null) {
-      clearInterval(state.liveTimerInterval);
-      state.liveTimerInterval = null;
-    }
-    if (state.timerBgmAudio) {
-      state.timerBgmAudio.pause();
-      state.timerBgmAudio = null;
-    }
-    if (state.unsubscribeRoom) {
-      state.unsubscribeRoom();
-      state.unsubscribeRoom = null;
-    }
-    if (state.unsubscribeRounds) {
-      state.unsubscribeRounds();
-      state.unsubscribeRounds = null;
-    }
-    if (state.unsubscribeRoomDeleted) {
-      state.unsubscribeRoomDeleted();
-      state.unsubscribeRoomDeleted = null;
-    }
   }
 
   function enterLobby() {
@@ -531,10 +440,10 @@
         return;
       }
       sb.from("rounds")
-        .select("id, start_at, target_seconds")
-        .eq("room_id", state.roomId)
-        .order("created_at", { ascending: false })
-        .limit(1)
+.select("id, start_at, target_seconds")
+      .eq("room_id", state.roomId)
+      .order("created_at", { ascending: false })
+      .limit(1)
         .then(function (res) {
           if (!res.data || res.data.length === 0) return;
           var round = res.data[0];
@@ -717,7 +626,9 @@
       }, 50);
       document.getElementById("btn-press").disabled = false;
       try {
-        var bgmIdx = state.bgmRoundIndex % BGM_SOURCES.length;
+        var bgmIdx = (state.currentRound && state.currentRound.id != null)
+          ? (state.currentRound.id % BGM_SOURCES.length)
+          : (state.bgmRoundIndex % BGM_SOURCES.length);
         state.bgmRoundIndex += 1;
         state.timerBgmAudio = new Audio(BGM_SOURCES[bgmIdx]);
         state.timerBgmAudio.loop = true;
@@ -960,18 +871,6 @@
         rankEl.style.display = "";
       } else if (rankEl) {
         rankEl.style.display = "none";
-      }
-      var slot = zone.parentElement;
-      if (!slot || !slot.classList.contains("round-player-slot")) return;
-      var badge = slot.querySelector(".round-zone-win-badge");
-      if (badge) badge.remove();
-      if (rankIdx >= 0 && rankIdx <= 2) {
-        var medalSrc = rankIdx === 0 ? "images/gold-medal.png" : rankIdx === 1 ? "images/silver-medal.png" : "images/bronze-medal.png";
-        var winBadge = document.createElement("img");
-        winBadge.className = "round-zone-win-badge";
-        winBadge.src = medalSrc;
-        winBadge.alt = rankIdx === 0 ? "1등" : rankIdx === 1 ? "2등" : "3등";
-        slot.insertBefore(winBadge, zone);
       }
     });
   }
