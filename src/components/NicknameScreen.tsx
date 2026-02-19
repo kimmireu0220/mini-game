@@ -31,7 +31,7 @@ export function NicknameScreen({ onDone }: NicknameScreenProps) {
     <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", width: "100%", boxSizing: "border-box" }}>
       <h1 style={{ fontSize: "1.75rem", marginBottom: "1.5rem", padding: "2rem 2rem 0", display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="" style={{ height: "2rem", width: "auto", display: "block" }} />
-        I-GAMES
+        -GAMES
       </h1>
       <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", padding: "2rem" }}>
         <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: "400px" }}>

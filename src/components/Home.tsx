@@ -41,7 +41,7 @@ export function Home({ nickname, onNicknameChange }: HomeProps) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1.5rem 0", flexWrap: "wrap", gap: "0.5rem" }}>
         <h1 style={{ fontSize: "1.75rem", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="" style={{ height: "2rem", width: "auto", display: "block" }} />
-          I-GAMES
+          -GAMES
         </h1>
         <button
           type="button"
