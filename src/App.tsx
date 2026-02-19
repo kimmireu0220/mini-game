@@ -19,11 +19,14 @@ function Home() {
 
   return (
     <main style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
-      <h1>미니게임 모음집</h1>
+      <h1 style={{ fontSize: "1.75rem", marginBottom: "1.5rem" }}>미니게임 모음집</h1>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {games.map((g) => (
-          <li key={g.slug} style={{ marginBottom: "0.75rem" }}>
-            <Link to={`/games/${g.slug}/`} style={{ fontSize: "1.1rem" }}>
+          <li key={g.slug} style={{ marginBottom: "1rem" }}>
+            <Link
+              to={`/games/${g.slug}/`}
+              style={{ fontSize: "1.35rem", display: "inline-block", padding: "0.5rem 0" }}
+            >
               {g.title}
             </Link>
           </li>
@@ -45,7 +48,7 @@ function GamePage() {
       </div>
       <iframe
         title={slug}
-        src={`/games/${slug}/`}
+        src={`/games/${slug}/index.html`}
         style={{ flex: 1, border: "none", width: "100%" }}
       />
     </main>
