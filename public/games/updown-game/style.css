@@ -12,13 +12,7 @@
   touch-action: manipulation;
   border-radius: 12px;
 }
-.game-page-wrapper #nickname-display-wrap { align-self: stretch; }
-.game-page-wrapper #nickname-display-wrap label { margin-bottom: 0; }
-.game-page-wrapper .nickname-display {
-  font-size: 1rem;
-  color: rgba(255,255,255,0.9);
-  margin-top: 4px;
-}
+/* 공통 폼 화면: 라벨 + 필드(.screen-field) + .button-row — 타이머 게임과 동일 */
 .game-page-wrapper .screen {
   display: flex;
   flex-direction: column;
@@ -28,9 +22,23 @@
   width: 100%;
 }
 .game-page-wrapper .screen.hidden { display: none; }
-.game-page-wrapper label { align-self: flex-start; font-size: 0.9rem; }
-.game-page-wrapper label + input[type="text"] { margin-top: -8px; }
-.game-page-wrapper input[type="text"],
+.game-page-wrapper .screen-form-label { align-self: stretch; font-size: 0.9rem; margin: 0; }
+.game-page-wrapper .screen-form-label + .screen-field { margin-top: -8px; }
+.game-page-wrapper .screen-field {
+  align-self: stretch;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.game-page-wrapper input.screen-field::placeholder { color: rgba(255,255,255,0.5); }
+.game-page-wrapper .screen-field:not(input) { min-height: 2.5rem; }
 .game-page-wrapper input[type="number"] {
   width: 100%;
   padding: 10px 12px;
@@ -39,9 +47,9 @@
   background: rgba(255,255,255,0.08);
   color: #fff;
   font-size: 1rem;
+  box-sizing: border-box;
 }
-.game-page-wrapper input::placeholder { color: rgba(255,255,255,0.5); }
-.game-page-wrapper .button-row { display: flex; gap: 16px; width: 100%; }
+.game-page-wrapper .button-row { display: flex; gap: 16px; width: 100%; align-self: stretch; }
 .game-page-wrapper .button-row button { flex: 1; }
 .game-page-wrapper button {
   padding: 12px 20px;

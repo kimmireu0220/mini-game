@@ -118,9 +118,9 @@ function Home({ nickname, onNicknameChange }: { nickname: string; onNicknameChan
             const base = import.meta.env.BASE_URL;
             const cardIcon =
               g.slug === "timing-game"
-                ? `${base}stopwatch.png`
+                ? `${base}games/timing-game/images/timing-game-icon.png`
                 : g.slug === "updown-game"
-                  ? `${base}mobile-data.png`
+                  ? `${base}games/updown-game/images/updown-game-icon.png`
                   : null;
             return (
               <li key={g.slug}>
