@@ -29,6 +29,7 @@
 /* 게임 중 플레이어 카드: 타이머와 동일(rank-display .round-player-slot .round-player-zone 스타일) */
 .game-page-wrapper #round-gameplay .round-player-zones { gap: 6px; }
 .game-page-wrapper #round-gameplay .round-player-zone {
+  position: relative;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 18px;
@@ -46,11 +47,25 @@
   border-width: 2px;
   background: rgba(127, 200, 168, 0.18);
 }
+/* P뱃지: 타이머와 동일(좌상단 원형) */
 .game-page-wrapper #round-gameplay .round-player-zone .round-zone-p-num {
-  font-size: 0.9rem;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  padding: 0;
+  border-radius: 50%;
   font-weight: 700;
-  color: rgba(255,255,255,0.65);
-  margin-bottom: 8px;
+  font-size: 0.8rem;
+  margin: 0;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .game-page-wrapper #round-gameplay .round-player-zone .round-zone-name {
   font-size: 1.05rem;

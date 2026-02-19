@@ -1,42 +1,25 @@
-# 미니게임 모음집
+# I-GAMES
 
-React + TypeScript + Vite 기반. 로컬에서 게임 목록을 보고 선택하면 해당 게임으로 이동합니다.
+**인하대학교 학생들** 술자리용 미니게임 모음입니다.
+대규모 인원용 술게임은 많은데, **2~4명**이 할 만한 건 별로 없어서 만든 거예요.
+같은 방 코드로 들어가서 함께 플레이할 수 있어요.
 
-## 실행
+---
 
-```bash
-npm install
-npm run dev
-```
+## 어떤 게임이 있나요?
 
-브라우저에서 **http://localhost:5173/** → 게임 선택 → 해당 게임 페이지(iframe)로 이동.
+- **업다운** — 1~50 비밀 숫자를 업/다운 힌트로 맞추기.
+  먼저 정답 맞추는 사람이 1등.
+- **시간 맞추기** — 정해진 초(예: 5초, 7초)에 가깝게 버튼 누르기.
+  오차가 가장 작은 사람이 1등.
 
-## Supabase (시간 맞추기 게임)
+---
 
-`.env`에 다음을 넣으세요 (`.env.example` 참고).
+## 어떻게 하면 되나요?
 
-```
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-```
+1. **닉네임** 입력 (처음 한 번)
+2. **게임** 고르기 (업다운 / 시간 맞추기)
+3. **방 만들기** 또는 **6자리 방 코드**로 입장
+4. 인원 모이면 **시작** → 같이 플레이
 
-## 게임 추가
-
-1. `public/games/<slug>/` 에 게임 파일을 넣습니다.
-2. `public/manifest.json` 에 `{ "file": "<slug>/index.html", "title": "제목", "slug": "<slug>" }` 를 추가합니다.
-
-## 빌드
-
-```bash
-npm run build
-```
-
-`dist/` 에 정적 파일이 생성됩니다.
-
-## 배포 (GitHub Pages)
-
-`main` 브랜치에 푸시하면 GitHub Actions가 빌드 후 GitHub Pages에 배포합니다.
-
-- **처음 한 번**: 저장소 **Settings → Pages → Build and deployment → Source** 를 **GitHub Actions** 로 설정하세요.
-- **시간 맞추기 게임**이 배포된 사이트에서 동작하려면: **Settings → Secrets and variables → Actions** 에 `SUPABASE_URL`, `SUPABASE_ANON_KEY` 를 추가하세요. 추가 후 푸시하면 빌드 시 주입됩니다.
-- 배포 후 주소: `https://<username>.github.io/mini-game/`
+각 게임 화면에서 i 버튼을 누르면 규칙을 다시 볼 수 있어요.

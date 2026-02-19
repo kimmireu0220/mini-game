@@ -64,7 +64,7 @@
     var rangeMsg = document.createElement("p");
     rangeMsg.id = "round-range-msg";
     rangeMsg.className = "round-range-msg";
-    rangeMsg.innerHTML = "현재 범위: <span id=\"round-range-min\">1</span> ~ <span id=\"round-range-max\">50</span>";
+    rangeMsg.innerHTML = "<span style=\"color:#f87171\">↑ <span id=\"round-range-min\">1</span></span> &nbsp; <span style=\"color:#60a5fa\">↓ <span id=\"round-range-max\">50</span></span>";
     gameplay.appendChild(rangeMsg);
     var liveZones = document.createElement("div");
     liveZones.id = "round-live-zones";
@@ -531,6 +531,14 @@
     var container = document.getElementById("round-live-zones");
     if (!container) return;
     var list = players || [];
+    if (typeof GamePlayerZone !== "undefined" && GamePlayerZone.fillPlayerZones) {
+      GamePlayerZone.fillPlayerZones(container, list, winCounts, state.clientId, {
+        wrapInSlot: false,
+        winsFormat: "plain",
+        showWins: true
+      });
+      return;
+    }
     container.innerHTML = "";
     container.className = "round-player-zones count-" + Math.min(list.length || 1, 8);
     list.forEach(function (p, i) {

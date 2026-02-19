@@ -558,6 +558,20 @@
     var container = document.getElementById("round-live-zones");
     if (!container) return;
     var list = players || [];
+    if (typeof GamePlayerZone !== "undefined" && GamePlayerZone.fillPlayerZones) {
+      GamePlayerZone.fillPlayerZones(container, list, winCounts, state.clientId, {
+        wrapInSlot: true,
+        winsFormat: "paren",
+        showWins: list.length > 1,
+        extrasFor: function () {
+          return [
+            { className: "round-zone-time", style: { display: "none" } },
+            { className: "round-zone-error", style: { display: "none" } }
+          ];
+        }
+      });
+      return;
+    }
     container.innerHTML = "";
     container.className = "round-player-zones count-" + Math.min(list.length || 1, 8);
     list.forEach(function (p, i) {
@@ -920,46 +934,75 @@
     var targetSec = (state.currentRound && state.currentRound.target_seconds) || 0;
     container.innerHTML = "";
     container.className = "round-player-zones count-" + Math.min(state.roundResultOrder.length, 8);
-    state.roundResultOrder.forEach(function (p, i) {
-      var slot = document.createElement("div");
-      slot.className = "round-player-slot";
-      var zone = document.createElement("div");
-      zone.className = "round-player-zone" + (p.client_id === state.clientId ? " me" : "");
-      zone.dataset.clientId = p.client_id;
-      var num = i + 1;
-      var pNumSpan = document.createElement("span");
-      pNumSpan.className = "round-zone-p-num num-" + num;
-      pNumSpan.textContent = "P" + num;
-      zone.appendChild(pNumSpan);
-      var nameEl = document.createElement("div");
-      nameEl.className = "round-zone-name";
-      var nameLine = document.createElement("div");
-      nameLine.className = "round-zone-name-line";
-      nameLine.appendChild(document.createTextNode(p.nickname || p.client_id));
-      nameEl.appendChild(nameLine);
-      var winsSpan = document.createElement("span");
-      winsSpan.className = "round-zone-wins";
-      nameEl.appendChild(winsSpan);
-      zone.appendChild(nameEl);
-      var timeEl = document.createElement("div");
-      timeEl.className = "round-zone-time";
-      var errorEl = document.createElement("div");
-      errorEl.className = "round-zone-error";
-      if (p.offsetMs != null) {
-        var pressTimeSec = targetSec + p.offsetMs / 1000;
-        var parts = (pressTimeSec || 0).toFixed(2).split(".");
-        timeEl.textContent = (parts[0] || "0").padStart(2, "0") + ":" + (parts[1] || "00");
-        var sign = (p.offsetMs || 0) >= 0 ? "+" : "";
-        errorEl.textContent = "오차: " + sign + (p.offsetMs / 1000).toFixed(2);
-      } else {
-        timeEl.textContent = "—";
-        errorEl.textContent = "—";
-      }
-      zone.appendChild(timeEl);
-      zone.appendChild(errorEl);
-      slot.appendChild(zone);
-      container.appendChild(slot);
-    });
+    if (typeof GamePlayerZone !== "undefined" && GamePlayerZone.createPlayerZone) {
+      state.roundResultOrder.forEach(function (p, i) {
+        var timeText = "—";
+        var errorText = "—";
+        if (p.offsetMs != null) {
+          var pressTimeSec = targetSec + p.offsetMs / 1000;
+          var parts = (pressTimeSec || 0).toFixed(2).split(".");
+          timeText = (parts[0] || "0").padStart(2, "0") + ":" + (parts[1] || "00");
+          var sign = (p.offsetMs || 0) >= 0 ? "+" : "";
+          errorText = "오차: " + sign + (p.offsetMs / 1000).toFixed(2);
+        }
+        var slot = GamePlayerZone.createPlayerZone({
+          clientId: p.client_id,
+          nickname: p.nickname || p.client_id,
+          pNum: i + 1,
+          isMe: p.client_id === state.clientId,
+          winCount: (state.winCounts && state.winCounts[p.client_id]) || 0,
+          winsFormat: "paren",
+          showWins: true,
+          wrapInSlot: true,
+          extras: [
+            { className: "round-zone-time", textContent: timeText },
+            { className: "round-zone-error", textContent: errorText }
+          ]
+        });
+        container.appendChild(slot);
+      });
+    } else {
+      state.roundResultOrder.forEach(function (p, i) {
+        var slot = document.createElement("div");
+        slot.className = "round-player-slot";
+        var zone = document.createElement("div");
+        zone.className = "round-player-zone" + (p.client_id === state.clientId ? " me" : "");
+        zone.dataset.clientId = p.client_id;
+        var num = i + 1;
+        var pNumSpan = document.createElement("span");
+        pNumSpan.className = "round-zone-p-num num-" + num;
+        pNumSpan.textContent = "P" + num;
+        zone.appendChild(pNumSpan);
+        var nameEl = document.createElement("div");
+        nameEl.className = "round-zone-name";
+        var nameLine = document.createElement("div");
+        nameLine.className = "round-zone-name-line";
+        nameLine.appendChild(document.createTextNode(p.nickname || p.client_id));
+        nameEl.appendChild(nameLine);
+        var winsSpan = document.createElement("span");
+        winsSpan.className = "round-zone-wins";
+        nameEl.appendChild(winsSpan);
+        zone.appendChild(nameEl);
+        var timeEl = document.createElement("div");
+        timeEl.className = "round-zone-time";
+        var errorEl = document.createElement("div");
+        errorEl.className = "round-zone-error";
+        if (p.offsetMs != null) {
+          var pressTimeSec = targetSec + p.offsetMs / 1000;
+          var parts = (pressTimeSec || 0).toFixed(2).split(".");
+          timeEl.textContent = (parts[0] || "0").padStart(2, "0") + ":" + (parts[1] || "00");
+          var sign = (p.offsetMs || 0) >= 0 ? "+" : "";
+          errorEl.textContent = "오차: " + sign + (p.offsetMs / 1000).toFixed(2);
+        } else {
+          timeEl.textContent = "—";
+          errorEl.textContent = "—";
+        }
+        zone.appendChild(timeEl);
+        zone.appendChild(errorEl);
+        slot.appendChild(zone);
+        container.appendChild(slot);
+      });
+    }
   }
 
   function showRoundEnd() {
