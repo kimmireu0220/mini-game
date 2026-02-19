@@ -91,20 +91,30 @@ Deno.serve(async (req) => {
         );
       }
 
-      const roomId = round.room_id;
       const { count: correctCount } = await supabase
         .from("updown_round_correct")
         .select("client_id", { count: "exact", head: true })
         .eq("round_id", round_id);
       const { count: playerCount } = await supabase
-        .from("updown_room_players")
+        .from("updown_round_player_ranges")
         .select("client_id", { count: "exact", head: true })
-        .eq("room_id", roomId);
+        .eq("round_id", round_id);
 
       if (playerCount != null && correctCount != null && correctCount >= playerCount) {
+        const { data: firstCorrect } = await supabase
+          .from("updown_round_correct")
+          .select("client_id")
+          .eq("round_id", round_id)
+          .order("correct_at", { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        const winnerClientId = firstCorrect?.client_id ?? null;
         const { error: updateError } = await supabase
           .from("updown_rounds")
-          .update({ status: "finished" })
+          .update({
+            status: "finished",
+            winner_client_id: winnerClientId,
+          })
           .eq("id", round_id);
 
         if (updateError) {
