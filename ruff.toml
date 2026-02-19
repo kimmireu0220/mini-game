@@ -1,3 +1,0 @@
-# blog-deploy: sys.path 조작 후 import 필요 → E402 허용
-[lint.per-file-ignores]
-"blog-deploy/**" = ["E402"]

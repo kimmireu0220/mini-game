@@ -1,9 +1,0 @@
-# actionlint 설정 (https://github.com/rhysd/actionlint)
-# CLI 실행 시 커스텀 시크릿 관련 경고 무시
-paths:
-  .github/workflows/**/*.{yml,yaml}:
-    ignore:
-      - 'Context access might be invalid: .*'
-      - 'property "WP_URL" is not defined.*'
-      - 'property "WP_USER" is not defined.*'
-      - 'property "WP_PASSWORD" is not defined.*'

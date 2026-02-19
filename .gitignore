@@ -3,6 +3,8 @@
 .cursor/mcp.json
 .playwright-mcp/
 .DS_Store
-__pycache__/
 .venv/
 .ruff_cache/
+node_modules/
+dist/
+tsconfig.tsbuildinfo

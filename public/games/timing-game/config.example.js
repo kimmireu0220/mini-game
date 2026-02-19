@@ -1,0 +1,5 @@
+// Supabase 설정. 업로드 시 .env의 SUPABASE_URL, SUPABASE_ANON_KEY로 치환됩니다.
+window.TIMING_GAME_CONFIG = {
+  SUPABASE_URL: "__SUPABASE_URL__",
+  SUPABASE_ANON_KEY: "__SUPABASE_ANON_KEY__"
+};

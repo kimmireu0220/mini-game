@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>시간 맞추기 게임 - 정해진 시간 예측해서 맞추기</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-page-wrapper">
+    <div class="game-bgm-toggle-wrap">
+      <button type="button" id="btn-refresh" title="새로고침"><img src="images/reload.png" alt="새로고침" class="btn-refresh-icon"></button>
+      <button type="button" id="btn-bgm-toggle" title="배경음악 켜기/끄기"><img id="btn-bgm-icon" src="images/bgm-on.png" alt="BGM"></button>
+    </div>
+    <div id="screen-nickname" class="screen">
+      <label for="input-nickname">닉네임 (필수)</label>
+      <input type="text" id="input-nickname" maxlength="20" placeholder="닉네임 입력" required>
+      <div class="button-row">
+        <button type="button" id="btn-create-room">방 만들기</button>
+        <button type="button" id="btn-join-room">방 들어가기</button>
+      </div>
+    </div>
+
+    <div id="screen-create" class="screen hidden">
+      <label for="input-room-name">방 제목 (선택)</label>
+      <input type="text" id="input-room-name" maxlength="50" placeholder="비워두면 기본 제목 사용">
+      <div class="button-row">
+        <button type="button" id="btn-create-submit">방 만들기</button>
+        <button type="button" id="btn-back-from-create">뒤로</button>
+      </div>
+    </div>
+
+    <div id="screen-create-done" class="screen hidden">
+      <p>방이 만들어졌어요. 코드를 공유하세요.</p>
+      <p class="room-code" id="display-room-code"></p>
+      <button type="button" id="btn-enter-lobby">대기실로</button>
+    </div>
+
+    <div id="screen-join" class="screen hidden">
+      <label for="input-join-code">방 코드</label>
+      <input type="text" id="input-join-code" maxlength="6" placeholder="6자리 코드" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+      <div class="button-row">
+        <button type="button" id="btn-join-submit">입장</button>
+        <button type="button" id="btn-back-from-join">뒤로</button>
+      </div>
+    </div>
+
+    <div id="screen-lobby" class="screen hidden">
+      <h2 id="lobby-room-name"></h2>
+      <ul id="lobby-players"></ul>
+      <p id="lobby-notice" class="lobby-notice hidden"></p>
+      <div class="button-row">
+        <button type="button" id="btn-start-round" class="host-only hidden">시작</button>
+        <button type="button" id="btn-leave-room">나가기</button>
+      </div>
+    </div>
+
+    <div id="screen-round" class="screen hidden">
+      <div id="round-countdown-overlay" class="round-countdown-overlay hidden">
+        <p id="round-countdown"></p>
+      </div>
+      <div id="round-gameplay-wrap">
+        <p id="round-target-msg"></p>
+        <p id="round-live-timer" class="round-live-timer"></p>
+      </div>
+      <h2 id="round-result-title" class="round-result-title hidden">게임 결과</h2>
+      <div id="round-player-zones" class="round-player-zones"></div>
+      <button type="button" id="btn-press" disabled>누르기</button>
+      <div id="round-end-actions" class="button-row hidden">
+        <button type="button" id="btn-round-play-again">다시 하기</button>
+        <button type="button" id="btn-round-leave">나가기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.example.js"></script>
+  <script src="state.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
