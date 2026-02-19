@@ -1,6 +1,6 @@
 // Supabase Edge Function: start-updown-round
-// 호스트만 호출. updown_rounds에 secret_number(1~100) 랜덤 생성,
-// 해당 방 참가자 전원에 대해 updown_round_player_ranges에 min=1, max=100 삽입.
+// 호스트만 호출. updown_rounds에 secret_number(1~50) 랜덤 생성,
+// 해당 방 참가자 전원에 대해 updown_round_player_ranges에 min=1, max=50 삽입.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const secretNumber = 1; /* 임시: 1~1 범위 */
+    const secretNumber = Math.floor(Math.random() * 50) + 1; // 1~50
 
     const { data: round, error: insertRoundError } = await supabase
       .from("updown_rounds")
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       round_id: round.id,
       client_id: p.client_id,
       min: 1,
-      max: 1, /* 임시: 1~1 범위 */
+      max: 50,
     }));
 
     const { error: rangesError } = await supabase

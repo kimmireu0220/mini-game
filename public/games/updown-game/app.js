@@ -64,7 +64,7 @@
     var rangeMsg = document.createElement("p");
     rangeMsg.id = "round-range-msg";
     rangeMsg.className = "round-range-msg";
-    rangeMsg.innerHTML = "현재 범위: <span id=\"round-range-min\">1</span> ~ <span id=\"round-range-max\">100</span>";
+    rangeMsg.innerHTML = "현재 범위: <span id=\"round-range-min\">1</span> ~ <span id=\"round-range-max\">50</span>";
     gameplay.appendChild(rangeMsg);
     var liveZones = document.createElement("div");
     liveZones.id = "round-live-zones";
@@ -418,7 +418,7 @@
             clearInterval(state.lobbyRoundPollIntervalId);
             state.lobbyRoundPollIntervalId = null;
           }
-          state.currentRound = { id: data.round_id, min: 1, max: 1 }; /* 임시: 1~1 */
+          state.currentRound = { id: data.round_id, min: 1, max: 50 };
           state.winnerClientId = null;
           state.roundDurationSeconds = null;
           loadRoundPlayersAndShowGame();
@@ -455,7 +455,7 @@
       clearInterval(state.lobbyRoundPollIntervalId);
       state.lobbyRoundPollIntervalId = null;
     }
-    state.currentRound = { id: roundId, min: 1, max: 1 }; /* 임시: 1~1 */
+    state.currentRound = { id: roundId, min: 1, max: 50 };
     state.winnerClientId = null;
     state.roundDurationSeconds = null;
     ensureUpdownRoundDOM();
@@ -496,7 +496,7 @@
     if (resultSection) resultSection.classList.add("hidden");
     startRoundBgm();
     var min = state.currentRound ? state.currentRound.min : 1;
-    var max = state.currentRound ? state.currentRound.max : 1; /* 임시: 1~1 */
+    var max = state.currentRound ? state.currentRound.max : 50;
     document.getElementById("round-range-min").textContent = min;
     document.getElementById("round-range-max").textContent = max;
     document.getElementById("input-guess").min = min;
@@ -623,7 +623,7 @@
     var feedback = document.getElementById("round-feedback");
     var guess = parseInt(input.value, 10);
     var min = state.currentRound ? state.currentRound.min : 1;
-    var max = state.currentRound ? state.currentRound.max : 1; /* 임시: 1~1 */
+    var max = state.currentRound ? state.currentRound.max : 50;
     if (isNaN(guess) || guess < min || guess > max) {
       feedback.textContent = min + " ~ " + max + " 사이 숫자를 입력하세요.";
       feedback.classList.remove("hidden", "up", "down", "correct");

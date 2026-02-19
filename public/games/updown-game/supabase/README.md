@@ -4,7 +4,7 @@
    - `001_tables.sql` — updown_rooms, updown_room_players, updown_rounds, updown_round_player_ranges + Realtime
    - `002_rls.sql` — RLS 활성화 및 정책
 2. Edge Function 배포:
-   - `start-updown-round`: 호스트가 시작 시 정답(1~100) 생성, 전원 범위 초기화
+   - `start-updown-round`: 호스트가 시작 시 정답(1~50) 생성, 전원 범위 초기화
    - `submit-updown-guess`: 숫자 제출 → 업/다운/정답 처리
 3. 프로젝트 설정 > API에서 Project URL, anon key 복사 후 게임 `config.example.js`(또는 config.js)에 설정.
 
