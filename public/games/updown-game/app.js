@@ -477,22 +477,26 @@
           if (payload.new && payload.new.status === "finished") {
             state.roundCreatedAt = payload.new.created_at || null;
             state.roundCorrectList = null;
-            sb.from("updown_round_correct")
+            var correctPromise = sb.from("updown_round_correct")
               .select("client_id, correct_at")
               .eq("round_id", roundId)
               .order("correct_at", { ascending: true })
+              .then(function (res) { return (res.data || []).slice(); });
+            var roundPromise = sb.from("updown_rounds")
+              .select("created_at")
+              .eq("id", roundId)
+              .maybeSingle()
               .then(function (res) {
-                state.roundCorrectList = (res.data || []).slice();
-                refreshLobbyWins(function () {
-                  showRoundResult();
-                });
-              })
-              .catch(function () {
-                state.roundCorrectList = [];
-                refreshLobbyWins(function () {
-                  showRoundResult();
-                });
+                if (res.error) return null;
+                return res.data && res.data.created_at ? res.data.created_at : null;
               });
+            Promise.allSettled([correctPromise, roundPromise]).then(function (results) {
+              state.roundCorrectList = results[0].status === "fulfilled" ? results[0].value : [];
+              if (results[1].status === "fulfilled" && results[1].value != null) state.roundCreatedAt = results[1].value;
+              refreshLobbyWins(function () {
+                showRoundResult();
+              });
+            });
           }
         })
         .subscribe();
@@ -526,22 +530,26 @@
           if (payload.new && payload.new.status === "finished") {
             state.roundCreatedAt = payload.new.created_at || null;
             state.roundCorrectList = null;
-            sb.from("updown_round_correct")
+            var correctPromise = sb.from("updown_round_correct")
               .select("client_id, correct_at")
               .eq("round_id", roundId)
               .order("correct_at", { ascending: true })
+              .then(function (res) { return (res.data || []).slice(); });
+            var roundPromise = sb.from("updown_rounds")
+              .select("created_at")
+              .eq("id", roundId)
+              .maybeSingle()
               .then(function (res) {
-                state.roundCorrectList = (res.data || []).slice();
-                refreshLobbyWins(function () {
-                  showRoundResult();
-                });
-              })
-              .catch(function () {
-                state.roundCorrectList = [];
-                refreshLobbyWins(function () {
-                  showRoundResult();
-                });
+                if (res.error) return null;
+                return res.data && res.data.created_at ? res.data.created_at : null;
               });
+            Promise.allSettled([correctPromise, roundPromise]).then(function (results) {
+              state.roundCorrectList = results[0].status === "fulfilled" ? results[0].value : [];
+              if (results[1].status === "fulfilled" && results[1].value != null) state.roundCreatedAt = results[1].value;
+              refreshLobbyWins(function () {
+                showRoundResult();
+              });
+            });
           }
         })
         .subscribe();

@@ -36,10 +36,15 @@
 .game-page-wrapper .round-player-slot {
   position: relative;
   min-height: 0;
+  overflow: visible;
 }
 /* slot 없이 직접 나열되는 zone(업다운 게임 중)도 동일 스타일 */
-.game-page-wrapper .round-player-zones > .round-player-zone {
+.game-page-wrapper .round-player-zones > .round-player-zone,
+.game-page-wrapper .round-player-slot .round-player-zone {
   position: relative;
+  overflow: visible;
+}
+.game-page-wrapper .round-player-zones > .round-player-zone {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 18px;
@@ -52,7 +57,21 @@
   width: 100%;
   box-sizing: border-box;
 }
-.game-page-wrapper .round-player-zones > .round-player-zone.me {
+.game-page-wrapper .round-player-slot .round-player-zone {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 120px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.game-page-wrapper .round-player-zones > .round-player-zone.me,
+.game-page-wrapper .round-player-slot .round-player-zone.me {
   border-color: #7fc8a8;
   border-width: 2px;
   background: rgba(127, 200, 168, 0.18);

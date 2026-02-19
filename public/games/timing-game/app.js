@@ -562,7 +562,7 @@
       GamePlayerZone.fillPlayerZones(container, list, winCounts, state.clientId, {
         wrapInSlot: true,
         winsFormat: "paren",
-        showWins: list.length > 1,
+        showWins: true,
         extrasFor: function () {
           return [
             { className: "round-zone-time", style: { display: "none" } },
@@ -591,12 +591,10 @@
       nameLine.className = "round-zone-name-line";
       nameLine.appendChild(document.createTextNode(p.nickname));
       nameEl.appendChild(nameLine);
-      if (list.length > 1) {
-        var winsSpan = document.createElement("span");
-        winsSpan.className = "round-zone-wins";
-        winsSpan.textContent = "( " + (winCounts[p.client_id] || 0) + "승 )";
-        nameEl.appendChild(winsSpan);
-      }
+      var winsSpan = document.createElement("span");
+      winsSpan.className = "round-zone-wins";
+      winsSpan.textContent = "( " + (winCounts[p.client_id] || 0) + "승 )";
+      nameEl.appendChild(winsSpan);
       zone.appendChild(nameEl);
       var timeEl = document.createElement("div");
       timeEl.className = "round-zone-time";

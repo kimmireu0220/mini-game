@@ -1,4 +1,8 @@
 [
-  {"file": "timing-game/index.html", "title": "시간 맞추기", "slug": "timing-game"},
-  {"file": "updown-game/index.html", "title": "업다운", "slug": "updown-game"}
+  {"file":"timing-game/index.html","title":"시간 맞추기","slug":"timing-game"},
+  {"file":"updown-game/index.html","title":"업다운","slug":"updown-game"},
+  {"file":"temp-game-1/index.html","title":"임시 게임 1","slug":"temp-game-1"},
+  {"file":"temp-game-2/index.html","title":"임시 게임 2","slug":"temp-game-2"},
+  {"file":"temp-game-3/index.html","title":"임시 게임 3","slug":"temp-game-3"},
+  {"file":"temp-game-4/index.html","title":"임시 게임 4","slug":"temp-game-4"}
 ]

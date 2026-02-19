@@ -11,6 +11,8 @@ function getCardIconUrl(slug: string): string | null {
   const base = import.meta.env.BASE_URL;
   if (slug === "timing-game") return `${base}games/timing-game/images/timing-game-icon.png`;
   if (slug === "updown-game") return `${base}games/updown-game/images/updown-game-icon.png`;
+  // 임시 게임: surprise-box 아이콘
+  if (slug === "temp-game-1" || slug === "temp-game-2" || slug === "temp-game-3" || slug === "temp-game-4") return `${base}images/surprise-box.png`;
   return null;
 }
 
@@ -21,6 +23,10 @@ function getGameDescription(slug: string): string {
   if (slug === "updown-game") {
     return "업/다운 힌트로 비밀 숫자 맞추기\n빨리 정답 맞추면 1등";
   }
+  if (slug === "temp-game-1") return "임시 설명 1\n(추가 예정)";
+  if (slug === "temp-game-2") return "임시 설명 2\n(추가 예정)";
+  if (slug === "temp-game-3") return "임시 설명 3\n(추가 예정)";
+  if (slug === "temp-game-4") return "임시 설명 4\n(추가 예정)";
   return "";
 }
 
@@ -48,8 +54,8 @@ const cardLinkStyle: React.CSSProperties = {
 
 const infoBtnStyle: React.CSSProperties = {
   position: "absolute",
-  top: 8,
-  right: 16,
+  top: 4,
+  right: 10,
   minWidth: 44,
   minHeight: 44,
   width: 44,
@@ -66,15 +72,17 @@ const infoBtnStyle: React.CSSProperties = {
 
 interface GameCardProps {
   game: GameEntry;
+  /** 그리드 셀 안에서 쓸 때 div로 렌더 (기본 li) */
+  as?: "li" | "div";
 }
 
-export function GameCard({ game }: GameCardProps) {
+export function GameCard({ game, as: Wrapper = "li" }: GameCardProps) {
   const [showInfo, setShowInfo] = useState(false);
   const iconUrl = getCardIconUrl(game.slug);
   const description = getGameDescription(game.slug);
 
   return (
-    <li style={{ position: "relative" }}>
+    <Wrapper style={{ position: "relative" } as React.CSSProperties}>
       <button
         type="button"
         aria-label="게임 설명"
@@ -206,6 +214,6 @@ export function GameCard({ game }: GameCardProps) {
           </div>
         </>
       )}
-    </li>
+    </Wrapper>
   );
 }
