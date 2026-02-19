@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
     }
 
     const secretNumber = 1; // 임시 1~1
+    const startAt = new Date(Date.now() + 3000).toISOString(); // 3초 후 입력 가능(카운트다운 동기화용)
 
     const { data: round, error: insertRoundError } = await supabase
       .from("updown_rounds")
@@ -56,8 +57,9 @@ Deno.serve(async (req) => {
         secret_number: secretNumber,
         status: "playing",
         winner_client_id: null,
+        start_at: startAt,
       })
-      .select("id, created_at")
+      .select("id, created_at, start_at")
       .single();
 
     if (insertRoundError || !round) {
@@ -98,7 +100,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ round_id: round.id, created_at: round.created_at }),
+      JSON.stringify({ round_id: round.id, created_at: round.created_at, start_at: round.start_at }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

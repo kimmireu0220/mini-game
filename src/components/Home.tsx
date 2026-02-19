@@ -52,10 +52,10 @@ export function Home({ nickname, onNicknameChange }: HomeProps) {
         </button>
       </div>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "1rem 1.5rem 1.5rem 1.5rem", gap: "1.25rem" }}>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "1.25rem", width: "100%", maxWidth: "440px" }}>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: "1rem", width: "100%", maxWidth: "340px" }}>
           {slots.map((game, i) => (
-            <li key={game ? game.slug : `empty-${currentPage}-${i}`} style={{ minHeight: 200 }}>
-              {game ? <GameCard game={game} as="div" /> : <div style={{ width: "100%", height: "100%", minHeight: 200 }} />}
+            <li key={game ? game.slug : `empty-${currentPage}-${i}`} style={{ minHeight: 160 }}>
+              {game ? <GameCard game={game} as="div" /> : <div style={{ width: "100%", height: "100%", minHeight: 160 }} />}
             </li>
           ))}
         </ul>

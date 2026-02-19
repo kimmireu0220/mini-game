@@ -30,7 +30,7 @@ function getGameDescription(slug: string): string {
   return "";
 }
 
-const CARD_SIZE = 200;
+const CARD_SIZE = 160;
 
 const cardLinkStyle: React.CSSProperties = {
   display: "flex",
@@ -41,7 +41,7 @@ const cardLinkStyle: React.CSSProperties = {
   width: CARD_SIZE,
   height: CARD_SIZE,
   padding: "1rem",
-  fontSize: "1.1rem",
+  fontSize: "1rem",
   fontWeight: 500,
   color: "#eee",
   textDecoration: "none",
@@ -115,7 +115,7 @@ export function GameCard({ game, as: Wrapper = "li" }: GameCardProps) {
           <img
             src={iconUrl}
             alt=""
-            style={{ width: 56, height: 56, objectFit: "contain", flexShrink: 0 }}
+            style={{ width: 44, height: 44, objectFit: "contain", flexShrink: 0 }}
           />
         )}
         <span style={{ textAlign: "center", lineHeight: 1.3 }}>{game.title}</span>

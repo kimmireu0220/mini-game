@@ -54,6 +54,12 @@ Deno.serve(async (req) => {
       );
     }
 
+    const submittedAt = new Date().toISOString();
+    await supabase.from("updown_round_submissions").upsert(
+      { round_id, client_id, submitted_at: submittedAt },
+      { onConflict: "round_id,client_id" }
+    );
+
     const { data: rangeRow, error: rangeError } = await supabase
       .from("updown_round_player_ranges")
       .select("min, max")
@@ -90,41 +96,43 @@ Deno.serve(async (req) => {
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+    }
 
-      const { count: correctCount } = await supabase
+    const { count: submissionCount } = await supabase
+      .from("updown_round_submissions")
+      .select("client_id", { count: "exact", head: true })
+      .eq("round_id", round_id);
+    const { count: playerCount } = await supabase
+      .from("updown_round_player_ranges")
+      .select("client_id", { count: "exact", head: true })
+      .eq("round_id", round_id);
+
+    if (playerCount != null && submissionCount != null && submissionCount >= playerCount) {
+      const { data: firstCorrect } = await supabase
         .from("updown_round_correct")
-        .select("client_id", { count: "exact", head: true })
-        .eq("round_id", round_id);
-      const { count: playerCount } = await supabase
-        .from("updown_round_player_ranges")
-        .select("client_id", { count: "exact", head: true })
-        .eq("round_id", round_id);
+        .select("client_id")
+        .eq("round_id", round_id)
+        .order("correct_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      const winnerClientId = firstCorrect?.client_id ?? null;
+      const { error: updateError } = await supabase
+        .from("updown_rounds")
+        .update({
+          status: "finished",
+          winner_client_id: winnerClientId,
+        })
+        .eq("id", round_id);
 
-      if (playerCount != null && correctCount != null && correctCount >= playerCount) {
-        const { data: firstCorrect } = await supabase
-          .from("updown_round_correct")
-          .select("client_id")
-          .eq("round_id", round_id)
-          .order("correct_at", { ascending: true })
-          .limit(1)
-          .maybeSingle();
-        const winnerClientId = firstCorrect?.client_id ?? null;
-        const { error: updateError } = await supabase
-          .from("updown_rounds")
-          .update({
-            status: "finished",
-            winner_client_id: winnerClientId,
-          })
-          .eq("id", round_id);
-
-        if (updateError) {
-          return new Response(
-            JSON.stringify({ error: updateError.message }),
-            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
+      if (updateError) {
+        return new Response(
+          JSON.stringify({ error: updateError.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
+    }
 
+    if (g === secret) {
       return new Response(
         JSON.stringify({ result: "correct" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }

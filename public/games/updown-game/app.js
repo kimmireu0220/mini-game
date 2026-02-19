@@ -47,6 +47,22 @@
     }
   }
 
+  function getServerTimeMs() {
+    var cfg = getConfig();
+    if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) return Promise.reject(new Error("config missing"));
+    var clientNow = Date.now();
+    return fetch(cfg.SUPABASE_URL + "/functions/v1/get-server-time", {
+      method: "GET",
+      headers: { Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY }
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) return Promise.reject(new Error(data.error));
+        var serverNowMs = new Date(data.now).getTime();
+        return { serverNowMs: serverNowMs, clientNowMs: clientNow };
+      });
+  }
+
   function showScreen(id) {
     document.querySelectorAll(".game-page-wrapper .screen").forEach(function (el) {
       el.classList.add("hidden");
@@ -380,7 +396,7 @@
     state.lobbyRoundPollIntervalId = setInterval(function () {
       if (!state.roomId) return;
       sb.from("updown_rounds")
-        .select("id, status, winner_client_id")
+        .select("id, status, winner_client_id, created_at, start_at")
         .eq("room_id", state.roomId)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -390,7 +406,7 @@
           if (state.currentRound && state.currentRound.id === round.id) return;
           clearInterval(state.lobbyRoundPollIntervalId);
           state.lobbyRoundPollIntervalId = null;
-          onRoundStarted({ id: round.id });
+          onRoundStarted(round);
         });
     }, pollMs);
   }
@@ -418,7 +434,7 @@
             clearInterval(state.lobbyRoundPollIntervalId);
             state.lobbyRoundPollIntervalId = null;
           }
-          state.currentRound = { id: data.round_id, min: 1, max: 1, created_at: data.created_at || null };
+          state.currentRound = { id: data.round_id, min: 1, max: 1, created_at: data.created_at || null, start_at: data.start_at || null };
           state.winnerClientId = null;
           state.roundDurationSeconds = null;
           state.roundCreatedAt = data.created_at || null;
@@ -457,10 +473,10 @@
       clearInterval(state.lobbyRoundPollIntervalId);
       state.lobbyRoundPollIntervalId = null;
     }
-    state.currentRound = { id: roundId, min: 1, max: 1 };
+    state.currentRound = { id: roundId, min: 1, max: 1, created_at: roundPayload.created_at || null, start_at: roundPayload.start_at || null };
     state.winnerClientId = null;
     state.roundDurationSeconds = null;
-    state.roundCreatedAt = null;
+    state.roundCreatedAt = roundPayload.created_at || null;
     state.roundCorrectList = null;
     ensureUpdownRoundDOM();
     showScreen("screen-round");
@@ -589,9 +605,12 @@
       state.countdownActive = true;
       if (inputGuess) inputGuess.disabled = true;
       if (btnSubmit) btnSubmit.disabled = true;
+      var startAtMs = state.currentRound && state.currentRound.start_at ? new Date(state.currentRound.start_at).getTime() : null;
       window.GameCountdown.run({
         container: slot,
         countFrom: 3,
+        startAt: startAtMs,
+        getServerTime: startAtMs ? getServerTimeMs : undefined,
         onComplete: function () {
           state.countdownActive = false;
           if (inputGuess) inputGuess.disabled = false;
