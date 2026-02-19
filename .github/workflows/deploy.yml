@@ -34,6 +34,9 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_PATH: "/mini-game/"
+          # 시간 맞추기 게임용. 저장소 Settings → Secrets and variables → Actions 에 추가
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       # SPA 라우팅: GitHub Pages에서 /games/xxx 등 직접 접근 시 index.html 제공
       - name: Copy index to 404 for SPA

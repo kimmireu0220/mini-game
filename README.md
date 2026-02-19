@@ -38,4 +38,5 @@ npm run build
 `main` 브랜치에 푸시하면 GitHub Actions가 빌드 후 GitHub Pages에 배포합니다.
 
 - **처음 한 번**: 저장소 **Settings → Pages → Build and deployment → Source** 를 **GitHub Actions** 로 설정하세요.
+- **시간 맞추기 게임**이 배포된 사이트에서 동작하려면: **Settings → Secrets and variables → Actions** 에 `SUPABASE_URL`, `SUPABASE_ANON_KEY` 를 추가하세요. 추가 후 푸시하면 빌드 시 주입됩니다.
 - 배포 후 주소: `https://<username>.github.io/mini-game/`
