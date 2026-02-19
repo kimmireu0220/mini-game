@@ -43,8 +43,8 @@ function GamePage() {
 
   return (
     <main style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "0.5rem 1rem", background: "#16213e" }}>
-        <Link to="/">← 목록</Link>
+      <div style={{ padding: "1rem 1.25rem", background: "#16213e", minHeight: "52px", display: "flex", alignItems: "center" }}>
+        <Link to="/" style={{ fontSize: "1.1rem", padding: "0.25rem 0" }}>← 목록</Link>
       </div>
       <iframe
         title={slug}
