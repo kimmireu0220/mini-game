@@ -1,0 +1,144 @@
+/**
+ * 게임 공통 스타일 (타이머·업다운 동일)
+ * 닉네임/방/로비/결과 제목·버튼 행 등
+ */
+.game-page-wrapper * { box-sizing: border-box; margin: 0; padding: 0; }
+.game-page-wrapper {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: #eee;
+  touch-action: manipulation;
+  border-radius: 12px;
+}
+.game-page-wrapper .screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  max-width: 360px;
+  width: 100%;
+}
+.game-page-wrapper .screen.hidden { display: none; }
+.game-page-wrapper .screen-form-label { align-self: stretch; font-size: 0.9rem; margin: 0; }
+.game-page-wrapper .screen-form-label + .screen-field { margin-top: -8px; }
+.game-page-wrapper .screen-field {
+  align-self: stretch;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.game-page-wrapper input.screen-field::placeholder { color: rgba(255,255,255,0.5); }
+.game-page-wrapper .screen-field:not(input) { min-height: 2.5rem; }
+.game-page-wrapper .button-row { display: flex; gap: 16px; width: 100%; align-self: stretch; }
+.game-page-wrapper .button-row button { flex: 1; }
+.game-page-wrapper button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #7fc8a8;
+  color: #1a1a2e;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.game-page-wrapper button:disabled { opacity: 0.5; cursor: not-allowed; }
+.game-page-wrapper button:hover:not(:disabled) { background: #8fd9b8; }
+.game-page-wrapper button.secondary { background: rgba(255,255,255,0.2); color: #eee; }
+.game-page-wrapper #btn-round-play-again {
+  padding: 14px 28px;
+  font-size: 1.1rem;
+  background: #4a90d9;
+  color: #fff;
+}
+.game-page-wrapper #btn-round-play-again:hover { background: #5ba0e8; }
+.game-page-wrapper .room-code { font-size: 1.8rem; font-weight: bold; letter-spacing: 0.2em; color: #7fc8a8; }
+.game-page-wrapper #lobby-players { list-style: none; width: 100%; padding: 0; }
+.game-page-wrapper #lobby-players li {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+}
+.game-page-wrapper #lobby-players li.me {
+  border-color: #7fc8a8;
+  border-width: 2px;
+  background: rgba(127, 200, 168, 0.18);
+}
+.game-page-wrapper #lobby-players li.me::after {
+  content: "◆";
+  color: #7fc8a8;
+  font-size: 0.75em;
+  margin-left: auto;
+}
+.game-page-wrapper #lobby-players .lobby-player-host {
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+.game-page-wrapper #lobby-players .lobby-player-host-icon {
+  width: 1.25em;
+  height: 1.25em;
+  object-fit: contain;
+}
+.game-page-wrapper #lobby-players .lobby-player-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75em;
+  height: 1.75em;
+  padding: 0;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-right: 8px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.game-page-wrapper .host-only { }
+.game-page-wrapper .host-only.hidden { display: none; }
+.game-page-wrapper .lobby-notice {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 4px 0 0 0;
+  width: 100%;
+  text-align: center;
+}
+.game-page-wrapper .lobby-notice.hidden { display: none; }
+.game-page-wrapper #screen-round { gap: 0; }
+.game-page-wrapper .round-result-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 16px 0;
+  width: 100%;
+}
+.game-page-wrapper .round-result-title.hidden { display: none; }
+.game-page-wrapper .round-result-wrap { text-align: center; width: 100%; }
+.game-page-wrapper .round-result-wrap.hidden { display: none; }
+.game-page-wrapper .round-result-wrap .button-row {
+  margin-top: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 360px;
+}

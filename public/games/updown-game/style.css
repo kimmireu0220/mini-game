@@ -1,44 +1,4 @@
-.game-page-wrapper * { box-sizing: border-box; margin: 0; padding: 0; }
-.game-page-wrapper {
-  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  color: #e8eef4;
-  touch-action: manipulation;
-  border-radius: 12px;
-}
-/* 공통 폼 화면: 라벨 + 필드(.screen-field) + .button-row — 타이머 게임과 동일 */
-.game-page-wrapper .screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
-  max-width: 440px;
-  width: 100%;
-}
-.game-page-wrapper .screen.hidden { display: none; }
-.game-page-wrapper .screen-form-label { align-self: stretch; font-size: 0.9rem; margin: 0; }
-.game-page-wrapper .screen-form-label + .screen-field { margin-top: -8px; }
-.game-page-wrapper .screen-field {
-  align-self: stretch;
-  width: 100%;
-  margin: 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 8px;
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  font-size: 1rem;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-.game-page-wrapper input.screen-field::placeholder { color: rgba(255,255,255,0.5); }
-.game-page-wrapper .screen-field:not(input) { min-height: 2.5rem; }
+/* 업다운 게임 전용 (공통은 game-common.css) */
 .game-page-wrapper input[type="number"] {
   width: 100%;
   padding: 10px 12px;
@@ -55,80 +15,6 @@
   -webkit-appearance: none;
   margin: 0;
 }
-.game-page-wrapper .button-row { display: flex; gap: 14px; width: 100%; align-self: stretch; }
-.game-page-wrapper .button-row button { flex: 1; }
-.game-page-wrapper button {
-  padding: 14px 22px;
-  border: none;
-  border-radius: 12px;
-  background: #6bb896;
-  color: #0f1419;
-  font-size: 1.02rem;
-  font-weight: 600;
-  cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: background 0.2s ease;
-}
-.game-page-wrapper button:disabled { opacity: 0.5; cursor: not-allowed; }
-.game-page-wrapper button:hover:not(:disabled) { background: #8dd4b4; }
-.game-page-wrapper button.secondary { background: rgba(255,255,255,0.15); color: #e8eef4; border: 1px solid rgba(255,255,255,0.2); }
-.game-page-wrapper button.secondary:hover:not(:disabled) { background: rgba(255,255,255,0.22); }
-.game-page-wrapper .room-code { font-size: 1.8rem; font-weight: bold; letter-spacing: 0.2em; color: #7fc8a8; }
-
-.game-page-wrapper #lobby-players { list-style: none; width: 100%; padding: 0; }
-.game-page-wrapper #lobby-players li {
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 8px;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-}
-.game-page-wrapper #lobby-players li.me {
-  border: 1px solid #7fc8a8;
-  background: rgba(127, 200, 168, 0.18);
-}
-.game-page-wrapper #lobby-players li.me::after {
-  content: "◆";
-  color: #7fc8a8;
-  font-size: 0.75em;
-  margin-left: auto;
-}
-.game-page-wrapper #lobby-players .lobby-player-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.75em;
-  height: 1.75em;
-  margin-right: 8px;
-  border-radius: 50%;
-  font-weight: 700;
-  font-size: 0.85rem;
-  background: rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
-}
-.game-page-wrapper #lobby-players .lobby-player-host {
-  margin-left: 6px;
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-}
-.game-page-wrapper #lobby-players .lobby-player-host-icon {
-  width: 1.25em;
-  height: 1.25em;
-  object-fit: contain;
-}
-.game-page-wrapper .host-only { }
-.game-page-wrapper .host-only.hidden { display: none; }
-.game-page-wrapper .lobby-notice {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.65);
-  width: 100%;
-  text-align: center;
-}
-.game-page-wrapper .lobby-notice.hidden { display: none; }
-
-.game-page-wrapper #screen-round { gap: 32px; }
 .game-page-wrapper .round-range-msg {
   font-size: 1.35rem;
   font-weight: 600;
@@ -214,11 +100,6 @@
 .game-page-wrapper .round-feedback.up { color: #5ba3f5; }
 .game-page-wrapper .round-feedback.down { color: #ef6b5c; }
 .game-page-wrapper .round-feedback.correct { color: #8dd4b4; font-size: 1.35rem; }
-
-.game-page-wrapper .round-result-wrap { text-align: center; width: 100%; }
-.game-page-wrapper .round-result-wrap.hidden { display: none; }
-.game-page-wrapper .round-result-title { font-size: 1.25rem; margin-bottom: 12px; }
 .game-page-wrapper .round-winner-msg { font-size: 1.2rem; font-weight: 600; color: #7fc8a8; margin-bottom: 24px; }
 .game-page-wrapper .round-winner-msg.hidden { display: none; }
 .game-page-wrapper #round-gameplay.hidden { display: none; }
-.game-page-wrapper #round-end-actions { margin-top: 16px; }

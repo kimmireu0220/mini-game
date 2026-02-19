@@ -156,10 +156,16 @@
       });
   }
 
-  function refreshLobbyWins() {
-    if (!state.roomId) return;
+  function refreshLobbyWins(callback) {
+    if (!state.roomId) {
+      if (callback) callback();
+      return;
+    }
     var sb = getSupabase();
-    if (!sb) return;
+    if (!sb) {
+      if (callback) callback();
+      return;
+    }
     sb.from("updown_rounds")
       .select("winner_client_id")
       .eq("room_id", state.roomId)
@@ -173,6 +179,10 @@
         });
         state.winCounts = counts;
         refreshLobbyPlayers();
+        if (callback) callback();
+      })
+      .catch(function () {
+        if (callback) callback();
       });
   }
 
@@ -351,7 +361,9 @@
             } else {
               state.roundDurationSeconds = null;
             }
-            showRoundResult();
+            refreshLobbyWins(function () {
+              showRoundResult();
+            });
           }
         })
         .subscribe();
@@ -385,7 +397,9 @@
             } else {
               state.roundDurationSeconds = null;
             }
-            showRoundResult();
+            refreshLobbyWins(function () {
+              showRoundResult();
+            });
           }
         })
         .subscribe();
@@ -396,8 +410,10 @@
   function renderRoundPlayerZones(players, winCounts) {
     var container = document.getElementById("round-player-zones");
     if (!container) return;
+    var list = players || [];
     container.innerHTML = "";
-    (players || []).forEach(function (p, i) {
+    container.className = "round-player-zones count-" + Math.min(list.length || 1, 8);
+    list.forEach(function (p, i) {
       var zone = document.createElement("div");
       zone.className = "round-player-zone" + (p.client_id === state.clientId ? " me" : "");
       zone.dataset.clientId = p.client_id;
@@ -510,7 +526,10 @@
           feedback.className = "round-feedback correct";
           feedback.classList.remove("hidden");
           state.winnerClientId = state.clientId;
-          showRoundResult();
+          // DB에 반영된 승수 갱신 후 결과 화면 표시
+          refreshLobbyWins(function () {
+            showRoundResult();
+          });
           return;
         }
         if (data.result === "up") {
