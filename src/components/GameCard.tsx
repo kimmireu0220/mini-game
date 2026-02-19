@@ -48,10 +48,13 @@ const cardLinkStyle: React.CSSProperties = {
 
 const infoBtnStyle: React.CSSProperties = {
   position: "absolute",
-  top: 8,
-  right: 16,
-  width: 24,
-  height: 24,
+  top: 4,
+  right: 4,
+  minWidth: 44,
+  minHeight: 44,
+  width: 44,
+  height: 44,
+  padding: 0,
   borderRadius: "50%",
   border: "1px solid rgba(255,255,255,0.4)",
   background: "rgba(0,0,0,0.3)",
@@ -166,8 +169,10 @@ export function GameCard({ game }: GameCardProps) {
                 aria-label="닫기"
                 onClick={() => setShowInfo(false)}
                 style={{
-                  width: 30,
-                  height: 30,
+                  minWidth: 44,
+                  minHeight: 44,
+                  width: 44,
+                  height: 44,
                   padding: 0,
                   border: "none",
                   borderRadius: "50%",
@@ -182,7 +187,7 @@ export function GameCard({ game }: GameCardProps) {
                 <img
                   src={`${import.meta.env.BASE_URL}images/close-icon.png`}
                   alt=""
-                  style={{ width: 18, height: 18, objectFit: "contain", display: "block" }}
+                  style={{ width: 20, height: 20, objectFit: "contain", display: "block" }}
                 />
               </button>
             </div>

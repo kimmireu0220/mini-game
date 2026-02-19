@@ -581,7 +581,7 @@
           extrasFor: function () {
             return state.roundDurationSeconds != null
               ? [{ className: "round-zone-duration", textContent: state.roundDurationSeconds.toFixed(1) + "초" }]
-              : [];
+              : [{ className: "round-zone-duration", textContent: "—" }];
           }
         });
       } else {
@@ -608,12 +608,12 @@
           winsSpan.className = "round-zone-wins";
           nameEl.appendChild(winsSpan);
           zone.appendChild(nameEl);
-          if (state.roundDurationSeconds != null) {
-            var durationEl = document.createElement("div");
-            durationEl.className = "round-zone-duration";
-            durationEl.textContent = state.roundDurationSeconds.toFixed(1) + "초";
-            zone.appendChild(durationEl);
-          }
+          var durationEl = document.createElement("div");
+          durationEl.className = "round-zone-duration";
+          durationEl.textContent = state.roundDurationSeconds != null
+            ? state.roundDurationSeconds.toFixed(1) + "초"
+            : "—";
+          zone.appendChild(durationEl);
           slotEl.appendChild(zone);
           resultZones.appendChild(slotEl);
         });
