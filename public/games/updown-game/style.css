@@ -100,6 +100,4 @@
 .game-page-wrapper .round-feedback.up { color: #5ba3f5; }
 .game-page-wrapper .round-feedback.down { color: #ef6b5c; }
 .game-page-wrapper .round-feedback.correct { color: #8dd4b4; font-size: 1.35rem; }
-.game-page-wrapper .round-winner-msg { font-size: 1.2rem; font-weight: 600; color: #7fc8a8; margin-bottom: 24px; }
-.game-page-wrapper .round-winner-msg.hidden { display: none; }
 .game-page-wrapper #round-gameplay.hidden { display: none; }

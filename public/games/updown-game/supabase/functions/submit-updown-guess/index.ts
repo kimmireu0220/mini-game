@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const secret = round.secret_number as number;
+    const secret = Number(round.secret_number);
 
     if (g === secret) {
       const { error: updateError } = await supabase

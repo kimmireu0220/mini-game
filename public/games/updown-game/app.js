@@ -436,9 +436,6 @@
   function showRoundResult() {
     document.getElementById("round-gameplay").classList.add("hidden");
     document.getElementById("round-result-wrap").classList.remove("hidden");
-    var msgEl = document.getElementById("round-winner-msg");
-    msgEl.textContent = "";
-    msgEl.classList.add("hidden");
     var players = state.roundPlayers || [];
     var winnerPlayer = players.find(function (p) { return p.client_id === state.winnerClientId; });
     var others = players.filter(function (p) { return p.client_id !== state.winnerClientId; });
