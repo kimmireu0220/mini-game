@@ -11,7 +11,8 @@ function Home() {
   const [games, setGames] = useState<GameEntry[]>([]);
 
   useEffect(() => {
-    fetch("/manifest.json")
+    const base = import.meta.env.BASE_URL;
+    fetch(`${base}manifest.json`)
       .then((r) => r.json())
       .then(setGames)
       .catch(() => setGames([]));
@@ -48,7 +49,7 @@ function GamePage() {
       </div>
       <iframe
         title={slug}
-        src={`/games/${slug}/index.html`}
+        src={`${import.meta.env.BASE_URL}games/${slug}/index.html`}
         style={{ flex: 1, border: "none", width: "100%" }}
       />
     </main>
