@@ -32,3 +32,10 @@ npm run build
 ```
 
 `dist/` 에 정적 파일이 생성됩니다.
+
+## 배포 (GitHub Pages)
+
+`main` 브랜치에 푸시하면 GitHub Actions가 빌드 후 GitHub Pages에 배포합니다.
+
+- **처음 한 번**: 저장소 **Settings → Pages → Build and deployment → Source** 를 **GitHub Actions** 로 설정하세요.
+- 배포 후 주소: `https://<username>.github.io/mini-game/`

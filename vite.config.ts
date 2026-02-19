@@ -7,8 +7,11 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const url = env.SUPABASE_URL ?? "";
   const key = env.SUPABASE_ANON_KEY ?? "";
+  // GitHub Pages: VITE_BASE_PATH=/mini-game/ 로 빌드
 
+  const base = env.VITE_BASE_PATH ?? "/";
   return {
+    base,
     plugins: [
       react(),
       // dev: /games/*/config.example.js 요청 시 .env로 치환. build: dist/games/*/config.example.js 치환.
