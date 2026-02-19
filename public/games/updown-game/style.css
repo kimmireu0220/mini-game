@@ -27,12 +27,13 @@
   width: 100%;
 }
 /* 플레이어 카드: rank-display.css + player-zone.js 공통 */
-.game-page-wrapper .round-player-slot .round-player-zone .round-zone-duration {
-  font-size: 1.1rem;
+/* 걸린 시각: 타이밍 게임과 동일 스타일(빨간색 03:01) */
+.game-page-wrapper .round-player-slot .round-player-zone .round-zone-time {
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #7fc8a8;
-  margin-top: 8px;
+  color: #ff6b6b;
   font-variant-numeric: tabular-nums;
+  margin-top: 14px;
 }
 .game-page-wrapper .round-input-row {
   display: flex;

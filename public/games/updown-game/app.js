@@ -582,13 +582,27 @@
 
     showRoundContent();
 
+    var inputGuess = document.getElementById("input-guess");
+    var btnSubmit = document.getElementById("btn-submit-guess");
+
     if (window.GameCountdown && slot) {
+      state.countdownActive = true;
+      if (inputGuess) inputGuess.disabled = true;
+      if (btnSubmit) btnSubmit.disabled = true;
       window.GameCountdown.run({
         container: slot,
         countFrom: 3,
-        onComplete: function () { startRoundBgm(); }
+        onComplete: function () {
+          state.countdownActive = false;
+          if (inputGuess) inputGuess.disabled = false;
+          if (btnSubmit) btnSubmit.disabled = false;
+          startRoundBgm();
+        }
       });
     } else {
+      state.countdownActive = false;
+      if (inputGuess) inputGuess.disabled = false;
+      if (btnSubmit) btnSubmit.disabled = false;
       startRoundBgm();
     }
   }
@@ -631,6 +645,13 @@
     return (state.currentRound && state.currentRound.created_at) || state.roundCreatedAt || null;
   }
 
+  function formatDurationSeconds(totalSeconds) {
+    if (totalSeconds == null || isNaN(totalSeconds)) return "—";
+    var min = Math.floor(totalSeconds / 60);
+    var sec = (totalSeconds % 60).toFixed(2);
+    return (min + "").padStart(2, "0") + ":" + (parseFloat(sec) < 10 ? "0" + sec : sec);
+  }
+
   function applyDurationsToResultZones(resultOrder, roundStartTime) {
     if (!roundStartTime) return;
     var resultZones = document.getElementById("round-result-zones");
@@ -639,9 +660,10 @@
     zones.forEach(function (zone) {
       var cid = zone.dataset.clientId;
       var p = resultOrder.find(function (x) { return x.client_id === cid; });
-      var durationEl = zone.querySelector(".round-zone-duration");
-      if (durationEl && p && p.correct_at) {
-        durationEl.textContent = "완료시각: " + ((new Date(p.correct_at).getTime() - new Date(roundStartTime).getTime()) / 1000).toFixed(1) + "초";
+      var timeEl = zone.querySelector(".round-zone-time");
+      if (timeEl && p && p.correct_at) {
+        var totalSec = (new Date(p.correct_at).getTime() - new Date(roundStartTime).getTime()) / 1000;
+        timeEl.textContent = formatDurationSeconds(totalSec);
       }
     });
   }
@@ -699,12 +721,13 @@
           winsFormat: "paren",
           showWins: true,
           extrasFor: function (p) {
-            var sec = "—";
+            var timeText = "—";
             var startTime = getRoundStartTime();
             if (p.correct_at && startTime) {
-              sec = ((new Date(p.correct_at).getTime() - new Date(startTime).getTime()) / 1000).toFixed(1) + "초";
+              var totalSec = (new Date(p.correct_at).getTime() - new Date(startTime).getTime()) / 1000;
+              timeText = formatDurationSeconds(totalSec);
             }
-            return [{ className: "round-zone-duration", textContent: "완료시각: " + sec }];
+            return [{ className: "round-zone-time", textContent: timeText }];
           }
         });
       } else {
@@ -731,15 +754,16 @@
           winsSpan.className = "round-zone-wins";
           nameEl.appendChild(winsSpan);
           zone.appendChild(nameEl);
-          var durationEl = document.createElement("div");
-          durationEl.className = "round-zone-duration";
-          var sec = "—";
+          var timeEl = document.createElement("div");
+          timeEl.className = "round-zone-time";
+          var timeText = "—";
           var startTime = getRoundStartTime();
           if (p.correct_at && startTime) {
-            sec = ((new Date(p.correct_at).getTime() - new Date(startTime).getTime()) / 1000).toFixed(1) + "초";
+            var totalSec = (new Date(p.correct_at).getTime() - new Date(startTime).getTime()) / 1000;
+            timeText = formatDurationSeconds(totalSec);
           }
-          durationEl.textContent = "완료시각: " + sec;
-          zone.appendChild(durationEl);
+          timeEl.textContent = timeText;
+          zone.appendChild(timeEl);
           slotEl.appendChild(zone);
           resultZones.appendChild(slotEl);
         });
@@ -764,10 +788,12 @@
   }
 
   function submitGuess() {
+    if (state.countdownActive) return;
     var cfg = getConfig();
     var input = document.getElementById("input-guess");
     var btn = document.getElementById("btn-submit-guess");
     var feedback = document.getElementById("round-feedback");
+    if (!input || !btn || btn.disabled) return;
     var guess = parseInt(input.value, 10);
     var min = state.currentRound ? state.currentRound.min : 1;
     var max = state.currentRound ? state.currentRound.max : 1;
