@@ -3,6 +3,44 @@
  * 닉네임/방/로비/결과 제목·버튼 행 등
  */
 .game-page-wrapper * { box-sizing: border-box; margin: 0; padding: 0; }
+.game-page-wrapper .game-bgm-toggle-wrap {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.game-page-wrapper .game-bgm-toggle-wrap > * { pointer-events: auto; }
+.game-page-wrapper #btn-refresh,
+.game-page-wrapper #btn-bgm-toggle {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.15);
+  color: #eee;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.game-page-wrapper #btn-refresh:hover,
+.game-page-wrapper #btn-bgm-toggle:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+.game-page-wrapper #btn-refresh img.btn-refresh-icon,
+.game-page-wrapper #btn-bgm-toggle img {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+.game-page-wrapper #btn-bgm-toggle.muted { opacity: 0.6; }
 .game-page-wrapper {
   font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);

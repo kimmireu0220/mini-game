@@ -1,40 +1,4 @@
 /* 타이머 게임 전용 (공통은 game-common.css) */
-.game-page-wrapper .game-bgm-toggle-wrap {
-  position: absolute;
-  top: 28px;
-  left: 28px;
-  right: 28px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.game-page-wrapper #btn-refresh,
-.game-page-wrapper #btn-bgm-toggle {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  background: rgba(255, 255, 255, 0.15);
-  color: #eee;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-.game-page-wrapper #btn-refresh:hover,
-.game-page-wrapper #btn-bgm-toggle:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-.game-page-wrapper #btn-refresh img.btn-refresh-icon,
-.game-page-wrapper #btn-bgm-toggle img {
-  width: 22px;
-  height: 22px;
-  display: block;
-}
-.game-page-wrapper #btn-bgm-toggle.muted { opacity: 0.6; }
 .game-page-wrapper .round-countdown-overlay {
   position: fixed;
   inset: 0;

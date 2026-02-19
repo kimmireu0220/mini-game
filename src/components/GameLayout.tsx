@@ -70,8 +70,18 @@ export function GameLayout({ slug, iframeSrc }: GameLayoutProps) {
         "*"
       );
     };
+    const onMessage = (e: MessageEvent) => {
+      if (e.data?.type === "setBgmMuted" && typeof e.data.value === "boolean") {
+        setBgmMuted(e.data.value);
+        setStoredBgmMuted(e.data.value);
+      }
+    };
     iframe.addEventListener("load", onLoad);
-    return () => iframe.removeEventListener("load", onLoad);
+    window.addEventListener("message", onMessage);
+    return () => {
+      iframe.removeEventListener("load", onLoad);
+      window.removeEventListener("message", onMessage);
+    };
   }, [bgmMuted]);
 
   const base = import.meta.env.BASE_URL;

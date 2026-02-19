@@ -98,6 +98,39 @@
     };
     document.getElementById("btn-start-round").onclick = startRound;
     document.getElementById("btn-leave-room").onclick = leaveRoom;
+    var btnRefresh = document.getElementById("btn-refresh");
+    if (btnRefresh) btnRefresh.onclick = function () { location.reload(); };
+    var btnBgm = document.getElementById("btn-bgm-toggle");
+    if (btnBgm) {
+      btnBgm.onclick = function () {
+        state.bgmMuted = !state.bgmMuted;
+        updateBgmButton();
+        if (state.timerBgmAudio) {
+          if (state.bgmMuted) state.timerBgmAudio.pause();
+          else {
+            var playPromise = state.timerBgmAudio.play();
+            if (playPromise && typeof playPromise.catch === "function") playPromise.catch(function () {});
+          }
+        }
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: "setBgmMuted", value: state.bgmMuted }, "*");
+          }
+        } catch (err) {}
+      };
+    }
+    function updateBgmButton() {
+      var btn = document.getElementById("btn-bgm-toggle");
+      if (!btn) return;
+      var img = btn.querySelector("img");
+      if (state.bgmMuted) {
+        btn.classList.add("muted");
+        if (img) img.src = "../images/bgm-off.png";
+      } else {
+        btn.classList.remove("muted");
+        if (img) img.src = "../images/bgm-on.png";
+      }
+    }
     function unlockAudioOnce() {
       if (state.audioUnlocked) return;
       state.audioUnlocked = true;
@@ -118,6 +151,7 @@
     window.addEventListener("message", function (e) {
       if (e.data && e.data.type === "setBgmMuted") {
         state.bgmMuted = e.data.value;
+        updateBgmButton();
         if (state.timerBgmAudio) {
           if (state.bgmMuted) state.timerBgmAudio.pause();
           else {
@@ -127,6 +161,7 @@
         }
       }
     });
+    updateBgmButton();
   }
 
   function createRoom() {

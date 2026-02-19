@@ -10,6 +10,10 @@
 </head>
 <body>
   <div class="game-page-wrapper">
+    <div class="game-bgm-toggle-wrap">
+      <button type="button" id="btn-refresh" title="새로고침"><img src="../images/reload.png" alt="새로고침" class="btn-refresh-icon"></button>
+      <button type="button" id="btn-bgm-toggle" title="배경음악"><img src="../images/bgm-on.png" alt="BGM"></button>
+    </div>
     <div id="screen-nickname" class="screen">
       <label class="screen-form-label" for="nickname-display-text">닉네임</label>
       <div id="nickname-display-text" class="screen-field" role="textbox" aria-readonly="true"></div>
@@ -67,7 +71,7 @@
         <h2 id="round-result-title" class="round-result-title">게임 결과</h2>
         <div id="round-result-player-zones" class="round-player-zones"></div>
         <div class="button-row">
-          <button type="button" id="btn-round-play-again" class="host-only hidden">다시 하기</button>
+          <button type="button" id="btn-round-play-again">다시 하기</button>
           <button type="button" id="btn-round-leave">나가기</button>
         </div>
       </div>

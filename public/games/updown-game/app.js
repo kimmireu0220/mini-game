@@ -66,12 +66,39 @@
       enterLobby();
     };
     document.getElementById("btn-round-leave").onclick = leaveRoom;
-
+    var btnRefresh = document.getElementById("btn-refresh");
+    if (btnRefresh) btnRefresh.onclick = function () { location.reload(); };
+    var btnBgm = document.getElementById("btn-bgm-toggle");
+    if (btnBgm) {
+      btnBgm.onclick = function () {
+        state.bgmMuted = !state.bgmMuted;
+        updateBgmButton();
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: "setBgmMuted", value: state.bgmMuted }, "*");
+          }
+        } catch (err) {}
+      };
+    }
+    function updateBgmButton() {
+      var btn = document.getElementById("btn-bgm-toggle");
+      if (!btn) return;
+      var img = btn.querySelector("img");
+      if (state.bgmMuted) {
+        btn.classList.add("muted");
+        if (img) img.src = "../images/bgm-off.png";
+      } else {
+        btn.classList.remove("muted");
+        if (img) img.src = "../images/bgm-on.png";
+      }
+    }
     window.addEventListener("message", function (e) {
       if (e.data && e.data.type === "setBgmMuted") {
         state.bgmMuted = e.data.value;
+        updateBgmButton();
       }
     });
+    updateBgmButton();
   }
 
   function createRoom() {
@@ -465,7 +492,7 @@
         winsSpan.className = "round-zone-wins";
         nameEl.appendChild(winsSpan);
         zone.appendChild(nameEl);
-        if (p.client_id === state.winnerClientId && state.roundDurationSeconds != null) {
+        if (state.roundDurationSeconds != null) {
           var durationEl = document.createElement("div");
           durationEl.className = "round-zone-duration";
           durationEl.textContent = state.roundDurationSeconds.toFixed(1) + "초";
