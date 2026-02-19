@@ -1,4 +1,6 @@
 [
   {"file":"timing-game/index.html","title":"시간 맞추기","slug":"timing-game"},
-  {"file":"updown-game/index.html","title":"업다운","slug":"updown-game"}
+  {"file":"updown-game/index.html","title":"업다운","slug":"updown-game"},
+  {"file":"","title":"랜덤 게임","slug":"random-game"},
+  {"file":"temp-game/index.html","title":"임시 게임","slug":"temp-game"}
 ]

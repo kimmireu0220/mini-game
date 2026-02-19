@@ -11,6 +11,7 @@ function getCardIconUrl(slug: string): string | null {
   const base = import.meta.env.BASE_URL;
   if (slug === "timing-game") return `${base}games/timing-game/images/timing-game-icon.png`;
   if (slug === "updown-game") return `${base}games/updown-game/images/updown-game-icon.png`;
+  if (slug === "random-game" || slug === "temp-game") return `${base}images/surprise-box.png`;
   return null;
 }
 
@@ -21,6 +22,10 @@ function getGameDescription(slug: string): string {
   if (slug === "updown-game") {
     return "업/다운 힌트로 비밀 숫자 맞추기\n빨리 정답 맞추면 1등";
   }
+  if (slug === "random-game") {
+    return "현재 있는 게임 중 하나를 랜덤으로 플레이합니다.";
+  }
+  if (slug === "temp-game") return "임시 게임\n(추가 예정)";
   return "";
 }
 
