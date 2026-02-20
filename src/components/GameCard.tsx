@@ -11,7 +11,8 @@ function getCardIconUrl(slug: string): string | null {
   const base = import.meta.env.BASE_URL;
   if (slug === "timing-game") return `${base}games/timing-game/images/timing-game-icon.png`;
   if (slug === "updown-game") return `${base}games/updown-game/images/updown-game-icon.png`;
-  if (slug === "random-game" || slug === "temp-game" || slug === "number-order") return `${base}images/surprise-box.png`;
+  if (slug === "number-order") return `${base}games/number-order/images/number-order-icon.jpg`;
+  if (slug === "random-game" || slug === "temp-game") return `${base}images/surprise-box.png`;
   return null;
 }
 
