@@ -1,6 +1,6 @@
 [
   {"file":"","title":"랜덤 게임","slug":"random-game","icon":"images/surprise-box.png","description":"게임 중 하나를 랜덤 선택\n선택된 게임으로 바로 플레이"},
   {"file":"timing-game/index.html","title":"시간 맞추기","slug":"timing-game","icon":"games/timing-game/images/timing-game-icon.png","description":"목표 초에 가깝게 버튼 누르기\n오차 적은 사람 1등"},
-  {"file":"updown-game/index.html","title":"업다운","slug":"updown-game","icon":"games/updown-game/images/updown-game-icon.png","description":"업/다운 힌트로 비밀 숫자 맞추기\n빨리 정답 맞추면 1등"},
+  {"file":"updown-game/index.html","title":"업다운","slug":"updown-game","icon":"games/updown-game/images/updown-game-icon.png","description":"업/다운 힌트로 비밀 숫자 맞추기\n전원 정답 시 라운드 종료, 완료 시각 빠른 순이 1등"},
   {"file":"number-order/index.html","title":"숫자 레이스","slug":"number-order","icon":"games/number-order/images/number-order-icon.jpg","description":"1부터 16까지 순서대로 빠르게 터치\n소요 시간 짧은 사람이 1등"}
 ]
