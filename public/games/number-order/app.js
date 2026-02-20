@@ -362,7 +362,7 @@
   }
 
   function startElapsedTimer() {
-    /* 경과 시간 표시 없음(업다운과 동일). 제출 시간은 tap1Time/tap16Time으로 계산됨. */
+    /* 경과 시간 DOM 표시 없음. 제출 시 goTimeServerMs ~ 서버 시각으로 duration_ms 계산. */
   }
 
   function stopElapsedTimer() {

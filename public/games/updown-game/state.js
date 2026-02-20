@@ -66,6 +66,7 @@
     winnerNickname: null,
     roundDurationSeconds: null,
     roundCreatedAt: null,
+    roundStartAt: null,
     roundCorrectList: null,
     roundPlayers: null
   };
