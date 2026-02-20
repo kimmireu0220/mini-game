@@ -556,11 +556,12 @@
             });
             state.roundResultOrder = list;
             var winnerClientId = (list.length > 0 && list[0].duration_ms != null) ? list[0].client_id : null;
-            if (winnerClientId && window.GameWinCounts && window.GameWinCounts.setRoundWinner) {
-              window.GameWinCounts.setRoundWinner(sb, {
-                roundsTable: "no_rounds",
-                roundId: roundId,
-                winnerClientId: winnerClientId
+            var cfg = getConfig();
+            if (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+              fetch(cfg.SUPABASE_URL + "/functions/v1/finish-no-round", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY },
+                body: JSON.stringify({ round_id: roundId })
               }).catch(function () {});
             }
             var newWinCounts = {};

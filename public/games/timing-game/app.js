@@ -824,11 +824,12 @@
               state.roundPlayers = (playerRes.data || []).map(function (p) {
                 return { client_id: p.client_id, nickname: players[p.client_id] || p.client_id };
               });
-              if (window.GameWinCounts && window.GameWinCounts.setRoundWinner) {
-                window.GameWinCounts.setRoundWinner(sb, {
-                  roundsTable: "timing_rounds",
-                  roundId: roundId,
-                  winnerClientId: winnerClientId
+              var cfg = getConfig();
+              if (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+                fetch(cfg.SUPABASE_URL + "/functions/v1/finish-timing-round", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json", Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY },
+                  body: JSON.stringify({ round_id: roundId })
                 }).catch(function () {});
               }
               showRoundEnd();
