@@ -567,6 +567,7 @@
 
   function startRoundTimerPhase() {
     var liveTimerEl = document.getElementById("round-live-timer");
+    var roundStartAt = state.currentRound ? new Date(state.currentRound.start_at).getTime() : 0;
     function hideLiveTimer() {
       if (state.liveTimerInterval != null) {
         clearInterval(state.liveTimerInterval);
@@ -576,29 +577,26 @@
         window.GameAudio.stopRoundBgm(state, { audioKey: "timerBgmAudio" });
       }
     }
-    function runPhase(phaseStartServerMs, serverOffsetMs) {
-      state.liveTimerInterval = setInterval(function () {
-        var estimatedServerMs = Date.now() + (serverOffsetMs || 0);
-        var elapsed = (estimatedServerMs - phaseStartServerMs) / 1000;
-        if (elapsed >= 3) {
-          if (state.liveTimerInterval != null) {
-            clearInterval(state.liveTimerInterval);
-            state.liveTimerInterval = null;
-          }
-          if (liveTimerEl) liveTimerEl.textContent = "??:??";
-          document.getElementById("btn-press").disabled = false;
-          return;
+    var serverOffsetMs = 0;
+    state.liveTimerInterval = setInterval(function () {
+      var estimatedServerMs = Date.now() + serverOffsetMs;
+      var elapsed = Math.max(0, (estimatedServerMs - roundStartAt) / 1000);
+      if (elapsed >= 3) {
+        if (state.liveTimerInterval != null) {
+          clearInterval(state.liveTimerInterval);
+          state.liveTimerInterval = null;
         }
-        if (liveTimerEl) liveTimerEl.textContent = window.GameFormatTime && window.GameFormatTime.formatDurationSeconds ? window.GameFormatTime.formatDurationSeconds(elapsed) : elapsed.toFixed(2);
-      }, 50);
-    }
+        if (liveTimerEl) liveTimerEl.textContent = "??:??";
+        document.getElementById("btn-press").disabled = false;
+        return;
+      }
+      if (liveTimerEl) liveTimerEl.textContent = window.GameFormatTime && window.GameFormatTime.formatDurationSeconds ? window.GameFormatTime.formatDurationSeconds(elapsed) : elapsed.toFixed(2);
+    }, 50);
     (window.GameGetServerTime && window.GameGetServerTime.getServerTimeMs ? window.GameGetServerTime.getServerTimeMs(getConfig) : Promise.reject(new Error("GameGetServerTime not loaded")))
       .then(function (r) {
-        runPhase(r.serverNowMs, r.serverNowMs - r.clientNowMs);
+        serverOffsetMs = r.serverNowMs - r.clientNowMs;
       })
-      .catch(function () {
-        runPhase(Date.now(), 0);
-      });
+      .catch(function () {});
     if (window.GameAudio && window.GameAudio.startRoundBgm) {
       window.GameAudio.startRoundBgm(state, {
         audioKey: "timerBgmAudio",
