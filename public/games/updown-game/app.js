@@ -364,7 +364,6 @@
           state.winnerClientId = null;
           state.roundDurationSeconds = null;
           state.roundCreatedAt = data.created_at || null;
-          state.roundStartAt = data.start_at || data.created_at || null;
           state.roundCorrectList = null;
           loadRoundPlayersAndShowGame();
         }
@@ -404,7 +403,6 @@
     state.winnerClientId = null;
     state.roundDurationSeconds = null;
     state.roundCreatedAt = roundPayload.created_at || null;
-    state.roundStartAt = roundPayload.start_at || roundPayload.created_at || null;
     state.roundCorrectList = null;
     ensureUpdownRoundDOM();
     showScreen("screen-round");
@@ -421,11 +419,9 @@
           if (payload.new && payload.new.status === "finished") {
             state.roundCorrectList = null;
             state.roundCreatedAt = payload.new.created_at || null;
-            if (payload.new.start_at != null) state.roundStartAt = payload.new.start_at;
-            else if (payload.new.created_at != null) state.roundStartAt = payload.new.created_at;
             if (state.currentRound && state.currentRound.id === roundId) {
+              state.currentRound.start_at = payload.new.start_at != null ? payload.new.start_at : state.currentRound.start_at;
               state.currentRound.created_at = payload.new.created_at || state.currentRound.created_at;
-              if (payload.new.start_at != null) state.currentRound.start_at = payload.new.start_at;
             }
             function goShowResult() {
               refreshLobbyWins(function () {
@@ -436,33 +432,45 @@
               .then(function (res) {
                 var row = (Array.isArray(res.data) && res.data.length) ? res.data[0] : res.data;
                 if (!res.error && row) {
-                  if (row.start_at != null) state.roundStartAt = row.start_at;
-                  else if (row.created_at != null) state.roundStartAt = row.created_at;
                   if (state.currentRound && state.currentRound.id === roundId) {
-                    if (row.start_at != null) state.currentRound.start_at = row.start_at;
-                    if (row.created_at != null) state.currentRound.created_at = row.created_at;
+                    state.currentRound.start_at = row.start_at != null ? row.start_at : state.currentRound.start_at;
+                    state.currentRound.created_at = row.created_at != null ? row.created_at : state.currentRound.created_at;
                   }
-                  if (Array.isArray(row.correct_list) && row.correct_list.length) {
-                    state.roundCorrectList = row.correct_list;
-                    if (row.created_at != null) state.roundCreatedAt = row.created_at;
-                    goShowResult();
-                    return;
-                  }
+                  state.roundCorrectList = Array.isArray(row.correct_list) ? row.correct_list : [];
+                  if (row.created_at != null) state.roundCreatedAt = row.created_at;
+                  goShowResult();
+                  return;
                 }
-                sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true })
+                sb.from("updown_rounds").select("start_at, created_at").eq("id", roundId).single()
+                  .then(function (rRes) {
+                    if (rRes && !rRes.error && rRes.data && state.currentRound && state.currentRound.id === roundId) {
+                      state.currentRound.start_at = rRes.data.start_at != null ? rRes.data.start_at : state.currentRound.start_at;
+                      state.currentRound.created_at = rRes.data.created_at != null ? rRes.data.created_at : state.currentRound.created_at;
+                    }
+                    return sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true });
+                  })
                   .then(function (cRes) {
                     if (cRes && !cRes.error && cRes.data) state.roundCorrectList = cRes.data;
+                    else state.roundCorrectList = [];
                     goShowResult();
                   })
-                  .catch(function () { goShowResult(); });
+                  .catch(function () { state.roundCorrectList = []; goShowResult(); });
               })
               .catch(function () {
-                sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true })
+                sb.from("updown_rounds").select("start_at, created_at").eq("id", roundId).single()
+                  .then(function (rRes) {
+                    if (rRes && !rRes.error && rRes.data && state.currentRound && state.currentRound.id === roundId) {
+                      state.currentRound.start_at = rRes.data.start_at != null ? rRes.data.start_at : state.currentRound.start_at;
+                      state.currentRound.created_at = rRes.data.created_at != null ? rRes.data.created_at : state.currentRound.created_at;
+                    }
+                    return sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true });
+                  })
                   .then(function (cRes) {
                     if (cRes && !cRes.error && cRes.data) state.roundCorrectList = cRes.data;
+                    else state.roundCorrectList = [];
                     goShowResult();
                   })
-                  .catch(goShowResult);
+                  .catch(function () { state.roundCorrectList = []; goShowResult(); });
               });
           }
         })
@@ -488,11 +496,9 @@
           if (payload.new && payload.new.status === "finished") {
             state.roundCorrectList = null;
             state.roundCreatedAt = payload.new.created_at || null;
-            if (payload.new.start_at != null) state.roundStartAt = payload.new.start_at;
-            else if (payload.new.created_at != null) state.roundStartAt = payload.new.created_at;
             if (state.currentRound && state.currentRound.id === roundId) {
+              state.currentRound.start_at = payload.new.start_at != null ? payload.new.start_at : state.currentRound.start_at;
               state.currentRound.created_at = payload.new.created_at || state.currentRound.created_at;
-              if (payload.new.start_at != null) state.currentRound.start_at = payload.new.start_at;
             }
             function goShowResult() {
               refreshLobbyWins(function () {
@@ -503,33 +509,45 @@
               .then(function (res) {
                 var row = (Array.isArray(res.data) && res.data.length) ? res.data[0] : res.data;
                 if (!res.error && row) {
-                  if (row.start_at != null) state.roundStartAt = row.start_at;
-                  else if (row.created_at != null) state.roundStartAt = row.created_at;
                   if (state.currentRound && state.currentRound.id === roundId) {
-                    if (row.start_at != null) state.currentRound.start_at = row.start_at;
-                    if (row.created_at != null) state.currentRound.created_at = row.created_at;
+                    state.currentRound.start_at = row.start_at != null ? row.start_at : state.currentRound.start_at;
+                    state.currentRound.created_at = row.created_at != null ? row.created_at : state.currentRound.created_at;
                   }
-                  if (Array.isArray(row.correct_list) && row.correct_list.length) {
-                    state.roundCorrectList = row.correct_list;
-                    if (row.created_at != null) state.roundCreatedAt = row.created_at;
-                    goShowResult();
-                    return;
-                  }
+                  state.roundCorrectList = Array.isArray(row.correct_list) ? row.correct_list : [];
+                  if (row.created_at != null) state.roundCreatedAt = row.created_at;
+                  goShowResult();
+                  return;
                 }
-                sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true })
+                sb.from("updown_rounds").select("start_at, created_at").eq("id", roundId).single()
+                  .then(function (rRes) {
+                    if (rRes && !rRes.error && rRes.data && state.currentRound && state.currentRound.id === roundId) {
+                      state.currentRound.start_at = rRes.data.start_at != null ? rRes.data.start_at : state.currentRound.start_at;
+                      state.currentRound.created_at = rRes.data.created_at != null ? rRes.data.created_at : state.currentRound.created_at;
+                    }
+                    return sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true });
+                  })
                   .then(function (cRes) {
                     if (cRes && !cRes.error && cRes.data) state.roundCorrectList = cRes.data;
+                    else state.roundCorrectList = [];
                     goShowResult();
                   })
-                  .catch(function () { goShowResult(); });
+                  .catch(function () { state.roundCorrectList = []; goShowResult(); });
               })
               .catch(function () {
-                sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true })
+                sb.from("updown_rounds").select("start_at, created_at").eq("id", roundId).single()
+                  .then(function (rRes) {
+                    if (rRes && !rRes.error && rRes.data && state.currentRound && state.currentRound.id === roundId) {
+                      state.currentRound.start_at = rRes.data.start_at != null ? rRes.data.start_at : state.currentRound.start_at;
+                      state.currentRound.created_at = rRes.data.created_at != null ? rRes.data.created_at : state.currentRound.created_at;
+                    }
+                    return sb.from("updown_round_correct").select("client_id, correct_at").eq("round_id", roundId).order("correct_at", { ascending: true });
+                  })
                   .then(function (cRes) {
                     if (cRes && !cRes.error && cRes.data) state.roundCorrectList = cRes.data;
+                    else state.roundCorrectList = [];
                     goShowResult();
                   })
-                  .catch(goShowResult);
+                  .catch(function () { state.roundCorrectList = []; goShowResult(); });
               });
           }
         })
@@ -614,8 +632,12 @@
     });
   }
 
+  /** Go! 시각 (숫자 레이스와 동일: 카운트다운 4초 후 = start_at + 4초). 완료 시간 = correct_at - Go */
   function getRoundStartTime() {
-    return state.roundStartAt || (state.currentRound && state.currentRound.start_at) || (state.currentRound && state.currentRound.created_at) || state.roundCreatedAt || null;
+    var startAt = state.currentRound && state.currentRound.start_at;
+    if (!startAt) return null;
+    var goMs = new Date(startAt).getTime() + 4000;
+    return new Date(goMs).toISOString();
   }
 
   function applyDurationsToResultZones(resultOrder, roundStartTime) {
@@ -656,12 +678,11 @@
         .then(function (res) {
           var row = (Array.isArray(res.data) && res.data.length) ? res.data[0] : res.data;
           if (!res.error && row) {
+            if (row.start_at != null) state.currentRound.start_at = row.start_at;
             if (row.created_at != null) {
               state.currentRound.created_at = row.created_at;
               state.roundCreatedAt = row.created_at;
             }
-            if (row.start_at != null) state.currentRound.start_at = row.start_at;
-            state.roundStartAt = row.start_at != null ? row.start_at : (row.created_at != null ? row.created_at : state.roundStartAt);
             if (Array.isArray(row.correct_list) && row.correct_list.length) {
               state.roundCorrectList = row.correct_list;
               var list = state.roundCorrectList;
@@ -838,7 +859,6 @@
         .then(function () {
           state.roomId = null;
           state.currentRound = null;
-          state.roundStartAt = null;
           state.isHost = false;
           cleanupSubscriptions();
           if (state.unsubscribeRound) state.unsubscribeRound();
@@ -847,7 +867,6 @@
     } else {
       state.roomId = null;
       state.currentRound = null;
-      state.roundStartAt = null;
       state.isHost = false;
       cleanupSubscriptions();
       showScreen("screen-nickname");

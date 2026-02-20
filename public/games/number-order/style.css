@@ -47,7 +47,11 @@
 .number-order-complete-msg {
   color: #4ade80;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.2rem, 5vw, 1.8rem);
+  margin-bottom: 1.5rem;
+}
+.number-order-complete-msg.hidden {
+  display: none;
 }
 
 .game-page-wrapper #round-gameplay-slot .round-live-timer {

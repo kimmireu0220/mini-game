@@ -103,16 +103,20 @@ Deno.serve(async (req) => {
       }
     }
 
-    const { count: submissionCount } = await supabase
-      .from("updown_round_submissions")
+    // 라운드 종료: 이 라운드 참가자 전원이 정답을 맞췄을 때만 finished
+    const { count: correctCount } = await supabase
+      .from("updown_round_correct")
       .select("client_id", { count: "exact", head: true })
       .eq("round_id", round_id);
+
     const { count: playerCount } = await supabase
       .from("updown_round_player_ranges")
       .select("client_id", { count: "exact", head: true })
       .eq("round_id", round_id);
 
-    if (playerCount != null && submissionCount != null && submissionCount >= playerCount) {
+    const allFinished = (correctCount ?? 0) >= (playerCount ?? 0) && (playerCount ?? 0) > 0;
+
+    if (allFinished) {
       const { data: firstCorrect } = await supabase
         .from("updown_round_correct")
         .select("client_id")
@@ -120,6 +124,7 @@ Deno.serve(async (req) => {
         .order("correct_at", { ascending: true })
         .limit(1)
         .maybeSingle();
+
       const winnerClientId = firstCorrect?.client_id ?? null;
       const { error: updateError } = await supabase
         .from("updown_rounds")
