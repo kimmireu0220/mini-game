@@ -336,17 +336,26 @@
     if (!state.roomId) return;
     var sb = getSupabase();
     if (!sb) return;
+    if (window.GameWinCounts && window.GameWinCounts.fetchRoomWinCounts) {
+      window.GameWinCounts
+        .fetchRoomWinCounts(sb, {
+          roundsTable: "timing_rounds",
+          roomId: state.roomId,
+          finishedBy: "winner"
+        })
+        .then(function (counts) {
+          state.winCounts = counts || {};
+        })
+        .catch(function () {});
+      return;
+    }
     sb.from("timing_rounds")
       .select("id, start_at, target_seconds")
       .eq("room_id", state.roomId)
       .order("created_at")
       .then(function (roundRes) {
-        if (!roundRes.data || roundRes.data.length === 0) {
-          return;
-        }
-        var roundIds = roundRes.data.map(function (r) {
-          return r.id;
-        });
+        if (!roundRes.data || roundRes.data.length === 0) return;
+        var roundIds = roundRes.data.map(function (r) { return r.id; });
         sb.from("timing_round_presses")
           .select("round_id, client_id, created_at")
           .in("round_id", roundIds)
@@ -355,9 +364,7 @@
             roundRes.data.forEach(function (r) {
               var startAt = new Date(r.start_at).getTime();
               var targetMs = r.target_seconds * 1000;
-              var presses = (pressRes.data || []).filter(function (p) {
-                return p.round_id === r.id;
-              });
+              var presses = (pressRes.data || []).filter(function (p) { return p.round_id === r.id; });
               if (presses.length === 0) return;
               var best = null;
               presses.forEach(function (p) {
@@ -803,16 +810,23 @@
                 });
               }
               var winner = list[0];
-              if (winner && winner.offsetMs != null) {
-                newWinCounts[winner.client_id] = (newWinCounts[winner.client_id] || 0) + 1;
+              var winnerClientId = (winner && winner.offsetMs != null) ? winner.client_id : null;
+              if (winnerClientId) {
+                newWinCounts[winnerClientId] = (newWinCounts[winnerClientId] || 0) + 1;
               }
               state.winCounts = newWinCounts;
-              state.lastRoundWinnerId = (winner && winner.offsetMs != null) ? winner.client_id : null;
+              state.lastRoundWinnerId = winnerClientId;
               state.roundResultOrder = list;
-              var roundPlayers = (playerRes.data || []).map(function (p) {
+              state.roundPlayers = (playerRes.data || []).map(function (p) {
                 return { client_id: p.client_id, nickname: players[p.client_id] || p.client_id };
               });
-              state.roundPlayers = roundPlayers;
+              if (window.GameWinCounts && window.GameWinCounts.setRoundWinner) {
+                window.GameWinCounts.setRoundWinner(sb, {
+                  roundsTable: "timing_rounds",
+                  roundId: roundId,
+                  winnerClientId: winnerClientId
+                }).catch(function () {});
+              }
               showRoundEnd();
             });
         });

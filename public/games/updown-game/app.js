@@ -222,24 +222,39 @@
       if (callback) callback();
       return;
     }
-    sb.from("updown_rounds")
-      .select("winner_client_id")
-      .eq("room_id", state.roomId)
-      .eq("status", "finished")
-      .then(function (res) {
-        var counts = {};
-        (res.data || []).forEach(function (r) {
-          if (r.winner_client_id) {
-            counts[r.winner_client_id] = (counts[r.winner_client_id] || 0) + 1;
-          }
-        });
-        state.winCounts = counts;
-        refreshLobbyPlayers();
-        if (callback) callback();
-      })
-      .catch(function () {
-        if (callback) callback();
-      });
+    var done = function () {
+      refreshLobbyPlayers();
+      if (callback) callback();
+    };
+    if (window.GameWinCounts && window.GameWinCounts.fetchRoomWinCounts) {
+      window.GameWinCounts
+        .fetchRoomWinCounts(sb, {
+          roundsTable: "updown_rounds",
+          roomId: state.roomId,
+          finishedBy: "status",
+          statusColumn: "status",
+          statusValue: "finished"
+        })
+        .then(function (counts) {
+          state.winCounts = counts || {};
+          done();
+        })
+        .catch(function () { done(); });
+    } else {
+      sb.from("updown_rounds")
+        .select("winner_client_id")
+        .eq("room_id", state.roomId)
+        .eq("status", "finished")
+        .then(function (res) {
+          var counts = {};
+          (res.data || []).forEach(function (r) {
+            if (r.winner_client_id) counts[r.winner_client_id] = (counts[r.winner_client_id] || 0) + 1;
+          });
+          state.winCounts = counts;
+          done();
+        })
+        .catch(function () { done(); });
+    }
   }
 
   function refreshLobbyPlayers() {
