@@ -64,7 +64,10 @@
     unsubscribeRoom: null,
     resultPollIntervalId: null,
     elapsedTimerIntervalId: null,
-    countdownActive: false
+    countdownActive: false,
+    bgmMuted: false,
+    bgmRoundIndex: 0,
+    roundBgmAudio: null
   };
 
   function cleanupSubscriptions() {
