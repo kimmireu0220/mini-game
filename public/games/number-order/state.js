@@ -61,6 +61,8 @@
     tap16Time: null,
     durationMs: null,
     roundResultOrder: [],
+    winCounts: {},
+    resultShownForRoundId: null,
     unsubscribeRoom: null,
     resultPollIntervalId: null,
     elapsedTimerIntervalId: null,

@@ -395,6 +395,14 @@
       });
   }
 
+  function formatTimeSec(totalSeconds) {
+    if (totalSeconds == null || isNaN(totalSeconds) || totalSeconds < 0) return "00.00";
+    var intPart = Math.floor(totalSeconds);
+    var decPart = Math.round((totalSeconds - intPart) * 100);
+    if (decPart >= 100) decPart = 99;
+    return (intPart + "").padStart(2, "0") + "." + (decPart + "").padStart(2, "0");
+  }
+
   var ROUND_POLL_INTERVAL_MS = 400;
   var ROUND_POLL_TIMEOUT_MS = 12000;
 
@@ -562,9 +570,7 @@
     var timeEl = zone.querySelector(".round-zone-time");
     var errorEl = zone.querySelector(".round-zone-error");
     if (timeEl && errorEl) {
-      var fixed = (pressTimeSec || 0).toFixed(2);
-      var parts = fixed.split(".");
-      timeEl.textContent = (parts[0] || "0").padStart(2, "0") + ":" + (parts[1] || "00");
+      timeEl.textContent = formatTimeSec(pressTimeSec != null ? pressTimeSec : 0);
       var sign = (offsetSec || 0) >= 0 ? "+" : "";
       errorEl.textContent = "오차: " + sign + (offsetSec || 0).toFixed(2);
       timeEl.style.display = "";
@@ -615,9 +621,7 @@
           document.getElementById("btn-press").disabled = false;
           return;
         }
-        var s = elapsed.toFixed(2);
-        var parts = s.split(".");
-        if (liveTimerEl) liveTimerEl.textContent = parts[0].padStart(2, "0") + ":" + (parts[1] || "00").slice(0, 2);
+        if (liveTimerEl) liveTimerEl.textContent = formatTimeSec(elapsed);
       }, 50);
     }
     getServerTimeMs()
@@ -725,7 +729,7 @@
     var slot = document.getElementById("round-gameplay-slot");
     if (slot) slot.classList.remove("hidden");
     var liveTimerEl = document.getElementById("round-live-timer");
-    if (liveTimerEl) liveTimerEl.textContent = "00:00";
+    if (liveTimerEl) liveTimerEl.textContent = "00.00";
     showScreen("screen-round");
 
     var sb = getSupabase();
@@ -858,8 +862,7 @@
         var errorText = "—";
         if (p.offsetMs != null) {
           var pressTimeSec = targetSec + p.offsetMs / 1000;
-          var parts = (pressTimeSec || 0).toFixed(2).split(".");
-          timeText = (parts[0] || "0").padStart(2, "0") + ":" + (parts[1] || "00");
+          timeText = formatTimeSec(pressTimeSec || 0);
           var sign = (p.offsetMs || 0) >= 0 ? "+" : "";
           errorText = "오차: " + sign + (p.offsetMs / 1000).toFixed(2);
         }
@@ -907,8 +910,7 @@
         errorEl.className = "round-zone-error";
         if (p.offsetMs != null) {
           var pressTimeSec = targetSec + p.offsetMs / 1000;
-          var parts = (pressTimeSec || 0).toFixed(2).split(".");
-          timeEl.textContent = (parts[0] || "0").padStart(2, "0") + ":" + (parts[1] || "00");
+          timeEl.textContent = formatTimeSec(pressTimeSec || 0);
           var sign = (p.offsetMs || 0) >= 0 ? "+" : "";
           errorEl.textContent = "오차: " + sign + (p.offsetMs / 1000).toFixed(2);
         } else {

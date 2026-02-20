@@ -608,11 +608,10 @@
 
   function formatDurationSeconds(totalSeconds) {
     if (totalSeconds == null || isNaN(totalSeconds)) return "—";
-    var min = Math.floor(totalSeconds / 60);
-    var sec = (totalSeconds % 60).toFixed(2);
-    var secStr = parseFloat(sec) < 10 ? "0" + sec : sec;
-    if (min === 0) return secStr;
-    return (min + "").padStart(2, "0") + ":" + secStr;
+    var intPart = Math.floor(totalSeconds);
+    var decPart = Math.round((totalSeconds - intPart) * 100);
+    if (decPart >= 100) decPart = 99;
+    return (intPart + "").padStart(2, "0") + "." + (decPart + "").padStart(2, "0");
   }
 
   function applyDurationsToResultZones(resultOrder, roundStartTime) {

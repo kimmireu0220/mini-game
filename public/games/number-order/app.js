@@ -143,6 +143,27 @@
       });
   }
 
+  function refreshLobbyWins() {
+    if (!state.roomId) return;
+    var sb = getSupabase();
+    if (!sb) return;
+    if (window.GameWinCounts && window.GameWinCounts.fetchRoomWinCounts) {
+      window.GameWinCounts
+        .fetchRoomWinCounts(sb, {
+          roundsTable: "no_rounds",
+          roomId: state.roomId,
+          finishedBy: "winner"
+        })
+        .then(function (counts) {
+          state.winCounts = counts || {};
+          refreshLobbyPlayers();
+        })
+        .catch(function () { refreshLobbyPlayers(); });
+      return;
+    }
+    refreshLobbyPlayers();
+  }
+
   function refreshLobbyPlayers() {
     var sb = getSupabase();
     if (!sb || !state.roomId) return;
@@ -182,7 +203,7 @@
   function enterLobby() {
     var titleEl = document.getElementById("lobby-room-name");
     if (titleEl) titleEl.textContent = "[ " + (state.roomName || "대기실") + " ]";
-    refreshLobbyPlayers();
+    refreshLobbyWins();
     document.querySelectorAll(".host-only").forEach(function (el) {
       el.classList.toggle("hidden", !state.isHost);
     });
@@ -275,7 +296,7 @@
     var elapsedEl = document.createElement("p");
     elapsedEl.className = "number-order-elapsed";
     elapsedEl.id = "number-order-elapsed";
-    elapsedEl.textContent = "00:00";
+    elapsedEl.textContent = "00.00";
     wrap.appendChild(elapsedEl);
     var completeMsg = document.createElement("p");
     completeMsg.className = "number-order-complete-msg hidden";
@@ -312,7 +333,7 @@
         btn.disabled = true;
       });
     }
-    if (elapsedEl) elapsedEl.textContent = "00:00";
+    if (elapsedEl) elapsedEl.textContent = "00.00";
     if (completeMsg) { completeMsg.classList.add("hidden"); completeMsg.textContent = ""; }
 
     var startAtMs = state.currentRound && state.currentRound.start_at ? new Date(state.currentRound.start_at).getTime() : null;
@@ -363,6 +384,14 @@
     }
   }
 
+  function formatDurationSeconds(totalSeconds) {
+    if (totalSeconds == null || isNaN(totalSeconds) || totalSeconds < 0) return "00.00";
+    var intPart = Math.floor(totalSeconds);
+    var decPart = Math.round((totalSeconds - intPart) * 100);
+    if (decPart >= 100) decPart = 99;
+    return (intPart + "").padStart(2, "0") + "." + (decPart + "").padStart(2, "0");
+  }
+
   function startElapsedTimer() {
     if (state.elapsedTimerIntervalId != null) clearInterval(state.elapsedTimerIntervalId);
     var elapsedEl = document.getElementById("number-order-elapsed");
@@ -371,10 +400,8 @@
       if (state.goTimeServerMs == null) return;
       var estimatedServerMs = Date.now() + (state.serverOffsetMs || 0);
       var ms = Math.max(0, estimatedServerMs - state.goTimeServerMs);
-      var totalSec = Math.floor(ms / 1000);
-      var mm = Math.floor(totalSec / 60);
-      var ss = totalSec % 60;
-      elapsedEl.textContent = (mm < 10 ? "0" : "") + mm + ":" + (ss < 10 ? "0" : "") + ss;
+      var totalSec = ms / 1000;
+      elapsedEl.textContent = formatDurationSeconds(totalSec);
     }, 100);
   }
 
@@ -437,7 +464,7 @@
           stopElapsedTimer();
           var completeMsg = document.getElementById("number-order-complete-msg");
           if (completeMsg) {
-            completeMsg.textContent = "완료! " + (state.durationMs / 1000).toFixed(2) + "초";
+            completeMsg.textContent = "완료! " + formatDurationSeconds(state.durationMs / 1000) + "초";
             completeMsg.classList.remove("hidden");
           }
         })
@@ -452,7 +479,7 @@
           stopElapsedTimer();
           var completeMsg = document.getElementById("number-order-complete-msg");
           if (completeMsg) {
-            completeMsg.textContent = "완료! " + (state.durationMs / 1000).toFixed(2) + "초";
+            completeMsg.textContent = "완료! " + formatDurationSeconds(state.durationMs / 1000) + "초";
             completeMsg.classList.remove("hidden");
           }
         });
@@ -502,6 +529,8 @@
     var sb = getSupabase();
     if (!sb || !state.currentRound) return;
     var roundId = state.currentRound.id;
+    if (state.resultShownForRoundId === roundId) return;
+    state.resultShownForRoundId = roundId;
     sb.from("no_round_results").select("client_id, duration_ms").eq("round_id", roundId)
       .then(function (resResults) {
         var results = resResults.data || [];
@@ -526,6 +555,20 @@
               return a.duration_ms - b.duration_ms;
             });
             state.roundResultOrder = list;
+            var winnerClientId = (list.length > 0 && list[0].duration_ms != null) ? list[0].client_id : null;
+            if (winnerClientId && window.GameWinCounts && window.GameWinCounts.setRoundWinner) {
+              window.GameWinCounts.setRoundWinner(sb, {
+                roundsTable: "no_rounds",
+                roundId: roundId,
+                winnerClientId: winnerClientId
+              }).catch(function () {});
+            }
+            var newWinCounts = {};
+            if (state.winCounts) {
+              Object.keys(state.winCounts).forEach(function (cid) { newWinCounts[cid] = state.winCounts[cid]; });
+            }
+            if (winnerClientId) newWinCounts[winnerClientId] = (newWinCounts[winnerClientId] || 0) + 1;
+            state.winCounts = newWinCounts;
             if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
             if (list.length > 0 && list[0].client_id === state.clientId && window.GameAudio && window.GameAudio.playWinSound) {
               window.GameAudio.playWinSound();
@@ -545,13 +588,15 @@
     container.innerHTML = "";
     var list = state.roundResultOrder || [];
     list.forEach(function (item, i) {
-      var durationText = item.duration_ms != null ? (item.duration_ms / 1000).toFixed(2) : "—";
+      var durationText = item.duration_ms != null ? formatDurationSeconds(item.duration_ms / 1000) : "—";
       var zone = window.GamePlayerZone.createPlayerZone({
         clientId: item.client_id,
         nickname: item.nickname,
         pNum: i + 1,
         isMe: item.client_id === state.clientId,
-        showWins: false,
+        showWins: true,
+        winCount: (state.winCounts && state.winCounts[item.client_id]) || 0,
+        winsFormat: "paren",
         extras: [{ className: "round-zone-time", textContent: durationText }]
       });
       container.appendChild(zone);
@@ -569,6 +614,7 @@
     state.goTimeServerMs = null;
     state.serverOffsetMs = null;
     state.roundResultOrder = [];
+    state.resultShownForRoundId = null;
     if (state.resultPollIntervalId != null) {
       clearInterval(state.resultPollIntervalId);
       state.resultPollIntervalId = null;
@@ -603,6 +649,7 @@
     state.goTimeServerMs = null;
     state.serverOffsetMs = null;
     state.roundResultOrder = [];
+    state.resultShownForRoundId = null;
     cleanupSubscriptions();
     if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
     stopElapsedTimer();
