@@ -417,7 +417,7 @@
       state.durationMs = Math.max(0, estimatedMs);
       var completeMsg = document.getElementById("number-order-complete-msg");
       if (completeMsg) {
-        completeMsg.textContent = "완료! " + (window.GameFormatTime && window.GameFormatTime.formatDurationSeconds ? window.GameFormatTime.formatDurationSeconds(state.durationMs / 1000) : (state.durationMs / 1000).toFixed(2)) + "초";
+        completeMsg.textContent = "완료! 다른 플레이어 대기 중..";
         completeMsg.classList.remove("hidden");
       }
       var sb = getSupabase();
@@ -428,9 +428,6 @@
             sb.from("no_round_results")
               .upsert({ round_id: state.currentRound.id, client_id: state.clientId, duration_ms: state.durationMs }, { onConflict: "round_id,client_id" })
               .then(function () {});
-          }
-          if (completeMsg) {
-            completeMsg.textContent = "완료! " + (window.GameFormatTime && window.GameFormatTime.formatDurationSeconds ? window.GameFormatTime.formatDurationSeconds(state.durationMs / 1000) : (state.durationMs / 1000).toFixed(2)) + "초";
           }
         })
         .catch(function () {
