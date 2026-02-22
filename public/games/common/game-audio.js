@@ -68,8 +68,10 @@
     var audioKey = opts.audioKey || "roundBgmAudio";
     var audio = state[audioKey];
     if (audio) {
-      audio.pause();
-      audio = null;
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch (e) {}
       state[audioKey] = null;
     }
   }

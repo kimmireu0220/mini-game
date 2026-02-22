@@ -889,6 +889,16 @@
   }
 
   function playAgain() {
+    if (state.timerBgmAudio) {
+      try {
+        state.timerBgmAudio.pause();
+        state.timerBgmAudio.currentTime = 0;
+      } catch (e) {}
+      state.timerBgmAudio = null;
+    }
+    if (window.GameAudio && window.GameAudio.stopRoundBgm) {
+      window.GameAudio.stopRoundBgm(state, { audioKey: "timerBgmAudio" });
+    }
     state.currentRound = null;
     state.roundResultOrder = null;
     state.roundPlayers = null;
@@ -906,13 +916,6 @@
     if (state.liveTimerInterval != null) {
       clearInterval(state.liveTimerInterval);
       state.liveTimerInterval = null;
-    }
-    if (state.timerBgmAudio) {
-      state.timerBgmAudio.pause();
-      state.timerBgmAudio = null;
-    }
-    if (window.GameAudio && window.GameAudio.stopRoundBgm) {
-      window.GameAudio.stopRoundBgm(state, { audioKey: "timerBgmAudio" });
     }
     var resultSection = document.getElementById("round-result-section");
     var slot = document.getElementById("round-gameplay-slot");
