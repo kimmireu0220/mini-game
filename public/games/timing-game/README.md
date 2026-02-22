@@ -10,7 +10,7 @@
 
 ## 설정
 
-1. Supabase 프로젝트 생성 후 [supabase/](supabase/) SQL 순서대로 실행 (`001_tables.sql`, `002_rls.sql`).
-2. Edge Function `start-round`, `get-server-time` 배포.
+1. Supabase 프로젝트 생성 후 [supabase/](supabase/) SQL **순서대로** 실행: `001_tables.sql`, `002_rls.sql`, `003_timing_round_winner.sql`, `004_remove_anon_update_rounds.sql`.
+2. Edge Function 배포: `start-round`, `get-server-time`(common), **`finish-timing-round`**(라운드 결과 확정 시 1등 저장).
 3. 프로젝트 루트 `.env`에 `SUPABASE_URL`, `SUPABASE_ANON_KEY` 설정.
 4. `npm run dev` → http://localhost:5173/ 에서 게임 선택. 방 코드 입장 시 `?code=123456` 형태.
