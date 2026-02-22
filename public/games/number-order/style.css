@@ -47,7 +47,7 @@
 .number-order-complete-msg {
   color: #4ade80;
   font-weight: 600;
-  font-size: clamp(1.2rem, 5vw, 1.8rem);
+  font-size: clamp(1rem, 4vw, 1.45rem);
   margin-bottom: 1.5rem;
 }
 .number-order-complete-msg.hidden {
