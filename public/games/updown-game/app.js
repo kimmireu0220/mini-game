@@ -383,6 +383,10 @@
       clearInterval(state.lobbyRoundPollIntervalId);
       state.lobbyRoundPollIntervalId = null;
     }
+    if (state.resultScreenRoundPollIntervalId) {
+      clearInterval(state.resultScreenRoundPollIntervalId);
+      state.resultScreenRoundPollIntervalId = null;
+    }
     state.currentRound = { id: roundId, min: 1, max: 50, created_at: roundPayload.created_at || null, start_at: roundPayload.start_at || null };
     state.roundCorrectList = null;
     ensureUpdownRoundDOM();
@@ -624,6 +628,31 @@
     document.querySelectorAll(".game-page-wrapper .host-only").forEach(function (el) {
       el.classList.toggle("hidden", !state.isHost);
     });
+    var sb = getSupabase();
+    if (sb && state.roomId && state.currentRound) {
+      if (state.resultScreenRoundPollIntervalId != null) {
+        clearInterval(state.resultScreenRoundPollIntervalId);
+        state.resultScreenRoundPollIntervalId = null;
+      }
+      state.resultScreenRoundPollIntervalId = setInterval(function () {
+        if (!state.roomId || !state.currentRound) return;
+        sb.from("updown_rounds")
+          .select("id, created_at, start_at")
+          .eq("room_id", state.roomId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .then(function (res) {
+            if (!res.data || res.data.length === 0) return;
+            var round = res.data[0];
+            if (round.id === state.currentRound.id) return;
+            if (state.resultScreenRoundPollIntervalId != null) {
+              clearInterval(state.resultScreenRoundPollIntervalId);
+              state.resultScreenRoundPollIntervalId = null;
+            }
+            onRoundStarted(round);
+          });
+      }, 1500);
+    }
     var players = state.roundPlayers || [];
     var correctList = state.roundCorrectList || [];
     var resultOrder = correctList.map(function (c) {

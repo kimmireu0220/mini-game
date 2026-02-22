@@ -60,6 +60,7 @@
     unsubscribeRoom: null,
     lobbyPlayersPollIntervalId: null,
     lobbyRoundPollIntervalId: null,
+    resultScreenRoundPollIntervalId: null,
     currentRound: null,
     winCounts: {},
     roundCorrectList: null,
@@ -74,6 +75,10 @@
     if (state.lobbyRoundPollIntervalId != null) {
       clearInterval(state.lobbyRoundPollIntervalId);
       state.lobbyRoundPollIntervalId = null;
+    }
+    if (state.resultScreenRoundPollIntervalId != null) {
+      clearInterval(state.resultScreenRoundPollIntervalId);
+      state.resultScreenRoundPollIntervalId = null;
     }
     if (state.unsubscribeRoom) {
       state.unsubscribeRoom();

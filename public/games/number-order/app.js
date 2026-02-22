@@ -244,6 +244,10 @@
 
   function onRoundStarted(round) {
     if (state.currentRound && state.currentRound.id === round.id) return;
+    if (state.resultScreenRoundPollIntervalId) {
+      clearInterval(state.resultScreenRoundPollIntervalId);
+      state.resultScreenRoundPollIntervalId = null;
+    }
     state.currentRound = { id: round.id, room_id: round.room_id, start_at: round.start_at };
     state.nextExpected = 1;
     state.durationMs = null;
@@ -508,6 +512,31 @@
             document.querySelectorAll(".game-page-wrapper .host-only").forEach(function (el) {
               el.classList.toggle("hidden", !state.isHost);
             });
+            var sb2 = getSupabase();
+            if (sb2 && state.roomId && state.currentRound) {
+              if (state.resultScreenRoundPollIntervalId != null) {
+                clearInterval(state.resultScreenRoundPollIntervalId);
+                state.resultScreenRoundPollIntervalId = null;
+              }
+              state.resultScreenRoundPollIntervalId = setInterval(function () {
+                if (!state.roomId || !state.currentRound) return;
+                sb2.from("no_rounds")
+                  .select("id, start_at")
+                  .eq("room_id", state.roomId)
+                  .order("created_at", { ascending: false })
+                  .limit(1)
+                  .then(function (res) {
+                    if (!res.data || res.data.length === 0) return;
+                    var round = res.data[0];
+                    if (round.id === state.currentRound.id) return;
+                    if (state.resultScreenRoundPollIntervalId != null) {
+                      clearInterval(state.resultScreenRoundPollIntervalId);
+                      state.resultScreenRoundPollIntervalId = null;
+                    }
+                    onRoundStarted({ id: round.id, room_id: state.roomId, start_at: round.start_at });
+                  });
+              }, 1500);
+            }
           });
       });
   }

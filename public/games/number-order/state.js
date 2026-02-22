@@ -62,6 +62,7 @@
     resultShownForRoundId: null,
     unsubscribeRoom: null,
     resultPollIntervalId: null,
+    resultScreenRoundPollIntervalId: null,
     countdownActive: false,
     goTimeServerMs: null,
     serverOffsetMs: null,
@@ -74,6 +75,10 @@
     if (state.resultPollIntervalId != null) {
       clearInterval(state.resultPollIntervalId);
       state.resultPollIntervalId = null;
+    }
+    if (state.resultScreenRoundPollIntervalId != null) {
+      clearInterval(state.resultScreenRoundPollIntervalId);
+      state.resultScreenRoundPollIntervalId = null;
     }
     if (state.unsubscribeRoom) {
       state.unsubscribeRoom();
