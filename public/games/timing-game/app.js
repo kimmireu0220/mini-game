@@ -275,6 +275,8 @@
           if (state.pollRoundIntervalId != null) return;
           var created = round.created_at ? new Date(round.created_at).getTime() : 0;
           if (created && Date.now() - created > 20000) return;
+          var startAtMs = round.start_at ? new Date(round.start_at).getTime() : 0;
+          if (startAtMs && Date.now() > startAtMs + 5000) return;
           clearInterval(state.lobbyRoundPollIntervalId);
           state.lobbyRoundPollIntervalId = null;
           onRoundStarted(round);
@@ -439,7 +441,11 @@
           }
           return;
         }
-        startRoundPollingFallback();
+        if (data.id && data.start_at != null) {
+          onRoundStarted({ id: data.id, start_at: data.start_at, target_seconds: data.target_seconds, created_at: data.created_at });
+        } else {
+          startRoundPollingFallback();
+        }
       })
       .catch(function (e) {
         if (btnStart) btnStart.disabled = false;
