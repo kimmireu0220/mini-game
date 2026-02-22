@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getStoredNickname, NICKNAME_KEY } from "../lib/nickname";
+import "./NicknameScreen.css";
 
 interface NicknameScreenProps {
   onDone: () => void;
@@ -28,14 +29,14 @@ export function NicknameScreen({ onDone }: NicknameScreenProps) {
   };
 
   return (
-    <main style={{ minHeight: "100vh", display: "flex", flexDirection: "column", width: "100%", boxSizing: "border-box" }}>
-      <h1 style={{ fontSize: "1.75rem", marginBottom: "1.5rem", padding: "2rem 2rem 0", display: "flex", alignItems: "center", gap: "0.25rem" }}>
-        <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="" style={{ height: "2rem", width: "auto", display: "block" }} />
+    <main className="nicknameRoot">
+      <h1 className="nicknameTitle">
+        <img src={`${import.meta.env.BASE_URL}images/logo.png`} alt="" className="nicknameLogo" />
         - GAMES
       </h1>
-      <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", padding: "2rem" }}>
-        <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: "400px" }}>
-          <label htmlFor="app-nickname" style={{ display: "block", marginBottom: "0.75rem", fontSize: "0.9rem" }}>
+      <div className="nicknameContent">
+        <form onSubmit={handleSubmit} className="nicknameForm">
+          <label htmlFor="app-nickname" className="nicknameLabel">
             닉네임
           </label>
           <input
@@ -45,32 +46,10 @@ export function NicknameScreen({ onDone }: NicknameScreenProps) {
             placeholder="닉네임 입력"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              border: "1px solid rgba(255,255,255,0.3)",
-              borderRadius: "8px",
-              background: "rgba(255,255,255,0.08)",
-              color: "#eee",
-              fontSize: "1rem",
-              marginBottom: "1rem",
-            }}
+            className="nicknameInput"
           />
-          {error && <p style={{ color: "#e88", fontSize: "0.9rem", marginBottom: "0.75rem" }}>{error}</p>}
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              padding: "12px",
-              marginTop: "0.25rem",
-              background: "#4a7c59",
-              color: "#fff",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "1rem",
-              cursor: "pointer",
-            }}
-          >
+          {error && <p className="nicknameError">{error}</p>}
+          <button type="submit" className="nicknameSubmit">
             시작하기
           </button>
         </form>

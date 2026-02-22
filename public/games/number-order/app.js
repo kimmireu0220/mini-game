@@ -13,13 +13,7 @@
   var ROUND_RESULT_TIMEOUT_MS = 35000;
   var GRID_TIMEOUT_MS = 30000;
 
-  function showScreen(id) {
-    document.querySelectorAll(".game-page-wrapper .screen").forEach(function (el) {
-      el.classList.add("hidden");
-    });
-    var el = document.getElementById(id);
-    if (el) el.classList.remove("hidden");
-  }
+  var showScreen = window.GameShell && window.GameShell.showScreen;
 
   function init() {
     var sb = getSupabase();

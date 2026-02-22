@@ -1,0 +1,70 @@
+.nicknameRoot {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nicknameTitle {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  padding: 2rem 2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nicknameLogo {
+  height: 2rem;
+  width: auto;
+  display: block;
+}
+
+.nicknameContent {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.nicknameForm {
+  width: 100%;
+  max-width: 400px;
+}
+
+.nicknameLabel {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.nicknameInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #eee;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nicknameError {
+  color: #e88;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.nicknameSubmit {
+  width: 100%;
+  padding: 12px;
+  margin-top: 0.25rem;
+  background: #4a7c59;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}

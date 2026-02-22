@@ -71,6 +71,17 @@
     + '  </div>'
     + '</div>';
 
+  function showScreen(id) {
+    document.querySelectorAll(".game-page-wrapper .screen").forEach(function (el) {
+      el.classList.add("hidden");
+    });
+    var el = document.getElementById(id);
+    if (el) el.classList.remove("hidden");
+  }
+
   var app = document.getElementById("app");
   if (app) app.innerHTML = GAME_SHELL_HTML;
+
+  window.GameShell = window.GameShell || {};
+  window.GameShell.showScreen = showScreen;
 })();

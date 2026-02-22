@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import "./GameLayout.css";
 
 const BGM_MUTED_KEY = "mini_game_bgm_muted";
 
@@ -15,23 +16,6 @@ function setStoredBgmMuted(muted: boolean) {
     localStorage.setItem(BGM_MUTED_KEY, muted ? "1" : "0");
   } catch {}
 }
-
-const btnStyle: React.CSSProperties = {
-  position: "absolute",
-  top: "max(12px, env(safe-area-inset-top))",
-  zIndex: 10,
-  width: 44,
-  height: 44,
-  padding: 0,
-  border: "1px solid rgba(255,255,255,0.3)",
-  borderRadius: 8,
-  background: "rgba(255,255,255,0.15)",
-  color: "#eee",
-  cursor: "pointer",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
 
 interface GameLayoutProps {
   slug: string;
@@ -89,35 +73,31 @@ export function GameLayout({ slug, iframeSrc }: GameLayoutProps) {
   const bgmOffUrl = `${base}images/bgm-off.png`;
 
   return (
-    <main style={{ height: "100vh", position: "relative" }}>
+    <main className="gameLayoutRoot">
       <iframe
         ref={iframeRef}
         title={slug}
         src={iframeSrc}
-        style={{ position: "absolute", inset: 0, border: "none", width: "100%", height: "100%" }}
+        className="gameLayoutIframe"
       />
       <button
         type="button"
         onClick={handleRefresh}
         title="새로고침"
-        style={{ ...btnStyle, left: "max(12px, env(safe-area-inset-left))" }}
+        className="gameLayoutBtn gameLayoutBtnLeft"
       >
-        <img
-          src={reloadIconUrl}
-          alt="새로고침"
-          style={{ width: 24, height: 24, display: "block" }}
-        />
+        <img src={reloadIconUrl} alt="새로고침" className="gameLayoutBtnIcon" />
       </button>
       <button
         type="button"
         onClick={handleBgmToggle}
         title={bgmMuted ? "배경음악 켜기" : "배경음악 끄기"}
-        style={{ ...btnStyle, right: "max(12px, env(safe-area-inset-right))", left: "auto", opacity: bgmMuted ? 0.6 : 1 }}
+        className={`gameLayoutBtn gameLayoutBtnRight ${bgmMuted ? "gameLayoutBtnMuted" : ""}`}
       >
         <img
           src={bgmMuted ? bgmOffUrl : bgmOnUrl}
           alt="BGM"
-          style={{ width: 24, height: 24, display: "block" }}
+          className="gameLayoutBtnIcon"
         />
       </button>
     </main>

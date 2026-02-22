@@ -10,13 +10,7 @@
   var generateRoomCode = UpdownGame.generateRoomCode;
   var cleanupSubscriptions = UpdownGame.cleanupSubscriptions;
 
-  function showScreen(id) {
-    document.querySelectorAll(".game-page-wrapper .screen").forEach(function (el) {
-      el.classList.add("hidden");
-    });
-    var el = document.getElementById(id);
-    if (el) el.classList.remove("hidden");
-  }
+  var showScreen = window.GameShell && window.GameShell.showScreen;
 
   function ensureUpdownRoundDOM() {
     var slot = document.getElementById("round-gameplay-slot");
@@ -29,6 +23,10 @@
     rangeMsg.className = "round-range-msg";
     rangeMsg.innerHTML = "<span style=\"color:#f87171\">↑ <span id=\"round-range-min\">1</span></span> &nbsp; <span style=\"color:#60a5fa\">↓ <span id=\"round-range-max\">50</span></span>";
     gameplay.appendChild(rangeMsg);
+    var ruleHint = document.createElement("p");
+    ruleHint.className = "round-rule-hint";
+    ruleHint.textContent = "전원이 정답을 맞춰야 라운드가 종료됩니다.";
+    gameplay.appendChild(ruleHint);
     var liveZones = document.createElement("div");
     liveZones.id = "round-live-zones";
     liveZones.className = "round-player-zones";

@@ -1,4 +1,4 @@
--- 라운드별 플레이어 정답 맞춘 시각 (마지막 사람이 맞춰야 라운드 종료)
+-- 라운드별 플레이어 정답 맞춘 시각 (전원이 정답을 맞춰야 라운드 종료)
 create table if not exists public.updown_round_correct (
   round_id uuid not null references public.updown_rounds(id) on delete cascade,
   client_id text not null,

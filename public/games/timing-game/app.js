@@ -13,13 +13,7 @@
   var PRESS_POLL_MS = 500;
   var countdownAudioContext = null;
 
-  function showScreen(id) {
-    document.querySelectorAll(".game-page-wrapper .screen").forEach(function (el) {
-      el.classList.add("hidden");
-    });
-    var el = document.getElementById(id);
-    if (el) el.classList.remove("hidden");
-  }
+  var showScreen = window.GameShell && window.GameShell.showScreen;
 
   function initScreens() {
     var sb = getSupabase();
