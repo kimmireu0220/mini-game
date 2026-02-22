@@ -895,6 +895,7 @@
   }
 
   function playAgain() {
+    if (!state.isHost) return;
     if (state.timerBgmAudio) {
       try {
         state.timerBgmAudio.pause();
@@ -930,8 +931,37 @@
       slot.classList.remove("hidden");
       slot.innerHTML = "";
     }
-    showScreen("screen-lobby");
-    enterLobby();
+    var sb = getSupabase();
+    var cfg = getConfig();
+    if (!sb || !state.roomId || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+      showScreen("screen-lobby");
+      enterLobby();
+      return;
+    }
+    fetch(cfg.SUPABASE_URL + "/functions/v1/start-round", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY },
+      body: JSON.stringify({ room_id: state.roomId, client_id: state.clientId })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) {
+          alert(data.error || "시작 실패");
+          showScreen("screen-lobby");
+          enterLobby();
+          return;
+        }
+        if (data.id && data.start_at != null) {
+          onRoundStarted({ id: data.id, start_at: data.start_at, target_seconds: data.target_seconds, created_at: data.created_at });
+        } else {
+          startRoundPollingFallback();
+        }
+      })
+      .catch(function (e) {
+        alert("시작 실패: " + e.message);
+        showScreen("screen-lobby");
+        enterLobby();
+      });
   }
 
   function showRoundEnd() {
@@ -942,6 +972,9 @@
     var resultSection = document.getElementById("round-result-section");
     if (slot) slot.classList.add("hidden");
     if (resultSection) resultSection.classList.remove("hidden");
+    document.querySelectorAll(".game-page-wrapper .host-only").forEach(function (el) {
+      el.classList.toggle("hidden", !state.isHost);
+    });
     buildTimingResultZones();
     if (state.lastRoundWinnerId && state.clientId === state.lastRoundWinnerId && window.GameAudio && window.GameAudio.playWinSound) {
       window.GameAudio.playWinSound();

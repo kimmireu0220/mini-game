@@ -64,7 +64,7 @@
     + '      <h2 id="round-result-title" class="round-result-title">게임 결과</h2>'
     + '      <div id="round-result-zones" class="round-player-zones"></div>'
     + '      <div class="button-row">'
-    + '        <button type="button" id="btn-round-play-again">다시 하기</button>'
+    + '        <button type="button" id="btn-round-play-again" class="host-only hidden">다시 하기</button>'
     + '        <button type="button" id="btn-round-leave">나가기</button>'
     + '      </div>'
     + '    </div>'

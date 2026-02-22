@@ -504,6 +504,9 @@
             var slot = document.getElementById("round-gameplay-slot");
             if (resultSection) resultSection.classList.remove("hidden");
             if (slot) slot.classList.add("hidden");
+            document.querySelectorAll(".game-page-wrapper .host-only").forEach(function (el) {
+              el.classList.toggle("hidden", !state.isHost);
+            });
           });
       });
   }
@@ -532,6 +535,15 @@
   }
 
   function playAgain() {
+    if (!state.isHost) return;
+    if (state.roundBgmAudio) {
+      try {
+        state.roundBgmAudio.pause();
+        state.roundBgmAudio.currentTime = 0;
+      } catch (e) {}
+      state.roundBgmAudio = null;
+    }
+    if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state, { audioKey: "roundBgmAudio" });
     state.currentRound = null;
     state.nextExpected = 1;
     state.durationMs = null;
@@ -544,8 +556,6 @@
       clearInterval(state.resultPollIntervalId);
       state.resultPollIntervalId = null;
     }
-    if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
-    cleanupSubscriptions();
     var resultSection = document.getElementById("round-result-section");
     var slot = document.getElementById("round-gameplay-slot");
     if (resultSection) resultSection.classList.add("hidden");
@@ -553,8 +563,38 @@
       slot.classList.remove("hidden");
       slot.innerHTML = "";
     }
-    showScreen("screen-lobby");
-    enterLobby();
+    var sb = getSupabase();
+    var cfg = getConfig();
+    if (!sb || !state.roomId || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+      cleanupSubscriptions();
+      showScreen("screen-lobby");
+      enterLobby();
+      return;
+    }
+    fetch(cfg.SUPABASE_URL + "/functions/v1/start-number-order-round", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY },
+      body: JSON.stringify({ room_id: state.roomId, client_id: state.clientId })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) {
+          alert(data.error || "시작 실패");
+          cleanupSubscriptions();
+          showScreen("screen-lobby");
+          enterLobby();
+          return;
+        }
+        if (data.id && data.start_at) {
+          onRoundStarted({ id: data.id, room_id: state.roomId, start_at: data.start_at });
+        }
+      })
+      .catch(function (e) {
+        alert("시작 실패: " + e.message);
+        cleanupSubscriptions();
+        showScreen("screen-lobby");
+        enterLobby();
+      });
   }
 
   function leaveRoom() {

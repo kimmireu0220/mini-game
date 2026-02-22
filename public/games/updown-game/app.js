@@ -620,6 +620,9 @@
     var resultSection = document.getElementById("round-result-section");
     if (slot) slot.classList.add("hidden");
     if (resultSection) resultSection.classList.remove("hidden");
+    document.querySelectorAll(".game-page-wrapper .host-only").forEach(function (el) {
+      el.classList.toggle("hidden", !state.isHost);
+    });
     var players = state.roundPlayers || [];
     var correctList = state.roundCorrectList || [];
     var resultOrder = correctList.map(function (c) {
@@ -801,20 +804,62 @@
   }
 
   function playAgain() {
+    if (!state.isHost) return;
+    if (state.roundBgmAudio) {
+      try {
+        state.roundBgmAudio.pause();
+        state.roundBgmAudio.currentTime = 0;
+      } catch (e) {}
+      state.roundBgmAudio = null;
+    }
+    if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state, { audioKey: "roundBgmAudio" });
     state.currentRound = null;
     state.roundCorrectList = null;
     state.roundPlayers = null;
+    state.countdownActive = false;
     if (state.unsubscribeRound) {
       state.unsubscribeRound();
       state.unsubscribeRound = null;
     }
-    if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
     var resultSection = document.getElementById("round-result-section");
     var slot = document.getElementById("round-gameplay-slot");
     if (resultSection) resultSection.classList.add("hidden");
     if (slot) slot.classList.remove("hidden");
-    showScreen("screen-lobby");
-    enterLobby();
+    var sb = getSupabase();
+    var cfg = getConfig();
+    if (!sb || !state.roomId || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+      showScreen("screen-lobby");
+      enterLobby();
+      return;
+    }
+    fetch(cfg.SUPABASE_URL + "/functions/v1/start-updown-round", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY },
+      body: JSON.stringify({ room_id: state.roomId, client_id: state.clientId })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) {
+          alert(data.error || "시작 실패");
+          showScreen("screen-lobby");
+          enterLobby();
+          return;
+        }
+        if (data.round_id) {
+          if (state.lobbyRoundPollIntervalId) {
+            clearInterval(state.lobbyRoundPollIntervalId);
+            state.lobbyRoundPollIntervalId = null;
+          }
+          state.currentRound = { id: data.round_id, min: 1, max: 50, created_at: data.created_at || null, start_at: data.start_at || null };
+          state.roundCorrectList = null;
+          loadRoundPlayersAndShowGame();
+        }
+      })
+      .catch(function (e) {
+        alert("시작 실패: " + (e.message || ""));
+        showScreen("screen-lobby");
+        enterLobby();
+      });
   }
 
   function leaveRoom() {
