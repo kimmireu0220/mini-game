@@ -98,14 +98,7 @@
     document.getElementById("btn-start-round").onclick = startRound;
     document.getElementById("btn-leave-room").onclick = leaveRoom;
     /* btn-submit-guess는 라운드 진입 시 ensureUpdownRoundDOM()에서 생성·바인딩 */
-    document.getElementById("btn-round-play-again").onclick = function () {
-      var resultSection = document.getElementById("round-result-section");
-      var slot = document.getElementById("round-gameplay-slot");
-      if (resultSection) resultSection.classList.add("hidden");
-      if (slot) slot.classList.remove("hidden");
-      showScreen("screen-lobby");
-      enterLobby();
-    };
+    document.getElementById("btn-round-play-again").onclick = playAgain;
     document.getElementById("btn-round-leave").onclick = leaveRoom;
     var btnRefresh = document.getElementById("btn-refresh");
     if (btnRefresh) btnRefresh.onclick = function () { location.reload(); };
@@ -844,6 +837,26 @@
         feedback.classList.remove("up", "down", "correct");
         feedback.classList.remove("hidden");
       });
+  }
+
+  function playAgain() {
+    state.currentRound = null;
+    state.winnerClientId = null;
+    state.roundCorrectList = null;
+    state.roundCreatedAt = null;
+    state.roundDurationSeconds = null;
+    state.roundPlayers = null;
+    if (state.unsubscribeRound) {
+      state.unsubscribeRound();
+      state.unsubscribeRound = null;
+    }
+    if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
+    var resultSection = document.getElementById("round-result-section");
+    var slot = document.getElementById("round-gameplay-slot");
+    if (resultSection) resultSection.classList.add("hidden");
+    if (slot) slot.classList.remove("hidden");
+    showScreen("screen-lobby");
+    enterLobby();
   }
 
   function leaveRoom() {

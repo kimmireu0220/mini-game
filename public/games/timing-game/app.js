@@ -66,6 +66,8 @@
     };
     document.getElementById("btn-start-round").onclick = startRound;
     document.getElementById("btn-leave-room").onclick = leaveRoom;
+    document.getElementById("btn-round-play-again").onclick = playAgain;
+    document.getElementById("btn-round-leave").onclick = leaveRoom;
     var btnRefresh = document.getElementById("btn-refresh");
     if (btnRefresh) btnRefresh.onclick = function () { location.reload(); };
     if (window.GameAudio && window.GameAudio.setupBgmButton) {
@@ -892,30 +894,52 @@
     }
   }
 
+  function playAgain() {
+    state.currentRound = null;
+    state.roundResultOrder = null;
+    state.roundPlayers = null;
+    state.lastRoundWinnerId = null;
+    state.myPressCreatedAt = null;
+    state.startButtonDelayFromPlayAgain = true;
+    if (state.roundPressesPollIntervalId != null) {
+      clearInterval(state.roundPressesPollIntervalId);
+      state.roundPressesPollIntervalId = null;
+    }
+    if (state.waitAllPressesIntervalId != null) {
+      clearInterval(state.waitAllPressesIntervalId);
+      state.waitAllPressesIntervalId = null;
+    }
+    if (state.liveTimerInterval != null) {
+      clearInterval(state.liveTimerInterval);
+      state.liveTimerInterval = null;
+    }
+    if (state.timerBgmAudio) {
+      state.timerBgmAudio.pause();
+      state.timerBgmAudio = null;
+    }
+    if (window.GameAudio && window.GameAudio.stopRoundBgm) {
+      window.GameAudio.stopRoundBgm(state, { audioKey: "timerBgmAudio" });
+    }
+    var resultSection = document.getElementById("round-result-section");
+    var slot = document.getElementById("round-gameplay-slot");
+    if (resultSection) resultSection.classList.add("hidden");
+    if (slot) {
+      slot.classList.remove("hidden");
+      slot.innerHTML = "";
+    }
+    showScreen("screen-lobby");
+    enterLobby();
+  }
+
   function showRoundEnd() {
     if (window.GameAudio && window.GameAudio.stopRoundBgm) {
       window.GameAudio.stopRoundBgm(state, { audioKey: "timerBgmAudio" });
     }
     var slot = document.getElementById("round-gameplay-slot");
     var resultSection = document.getElementById("round-result-section");
-    var againBtn = document.getElementById("btn-round-play-again");
-    var leaveBtn = document.getElementById("btn-round-leave");
     if (slot) slot.classList.add("hidden");
     if (resultSection) resultSection.classList.remove("hidden");
     buildTimingResultZones();
-    if (againBtn) {
-      againBtn.onclick = function () {
-        if (resultSection) resultSection.classList.add("hidden");
-        if (slot) slot.classList.remove("hidden");
-        showScreen("screen-lobby");
-        enterLobby();
-      };
-    }
-    if (leaveBtn) {
-      leaveBtn.onclick = function () {
-        leaveRoom();
-      };
-    }
     if (state.lastRoundWinnerId && state.clientId === state.lastRoundWinnerId && window.GameAudio && window.GameAudio.playWinSound) {
       window.GameAudio.playWinSound();
     }
