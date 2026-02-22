@@ -26,13 +26,6 @@
   text-align: center;
   width: 100%;
 }
-.game-page-wrapper #round-gameplay .round-rule-hint {
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.65);
-  margin: 0 0 12px 0;
-  text-align: center;
-  width: 100%;
-}
 /* 플레이어 카드: rank-display.css + player-zone.js 공통 */
 /* 걸린 시각: 타이밍 게임과 동일 스타일(빨간색 03:01) */
 .game-page-wrapper .round-player-slot .round-player-zone .round-zone-time {
