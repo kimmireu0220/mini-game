@@ -1,8 +1,9 @@
 /**
  * 공통 N~1 카운트다운 (타이밍 게임, 업다운 게임 등)
- * 사용: GameCountdown.run({ countFrom?: number, startAt?, getServerTime?(), onComplete })
- * - countFrom: N이면 N~1 표시 (예: 4 → 4,3,2,1 / 3 → 3,2,1). 기본 4
- * - startAt 있으면 서버 시각 기준 동기화, 없으면 countFrom초 후 onComplete
+ * 사용: GameCountdown.run({ countFrom?: number, displayFrom?: number, startAt?, getServerTime?(), onComplete })
+ * - countFrom: 총 카운트다운 초. 기본 4 (startAt 없을 때 durationMs)
+ * - displayFrom: 화면에 보여줄 숫자만. 예: 4초 카운트인데 displayFrom 3이면 4는 안 보이고 3,2,1만 표시 (remaining>3000이어도 3 표시)
+ * - startAt 있으면 서버 시각 기준 동기화
  */
 (function () {
   "use strict";
@@ -16,6 +17,15 @@
     var n = Math.max(1, Math.floor(countFrom));
     var steps = [];
     for (var i = n; i >= 1; i--) steps.push({ ms: (i - 1) * 1000, num: i });
+    return steps;
+  }
+  /** displayFrom만 보이게, 총 duration은 countFrom초. 예: countFrom 4, displayFrom 3 → remaining>2000이면 3, >1000이면 2, >0이면 1 (4는 안 뜸) */
+  function buildStepsDisplayOnly(countFrom, displayFrom) {
+    var n = Math.max(1, Math.floor(displayFrom));
+    var steps = [];
+    for (var i = 0; i < n; i++) {
+      steps.push({ ms: (n - 1 - i) * 1000, num: n - i });
+    }
     return steps;
   }
 
@@ -60,7 +70,8 @@
   /**
    * options: {
    *   container?: Element,
-   *   countFrom?: number,   // N이면 N~1 카운트다운 (예: 4 → 4,3,2,1 / 3 → 3,2,1). 없으면 4
+   *   countFrom?: number,   // 총 카운트다운 초. 기본 4
+   *   displayFrom?: number, // 화면에만 보여줄 숫자. 예: 3이면 4초인데 3,2,1만 표시 (4 안 뜸)
    *   startAt?: number,     // 서버 시각(ms). 있으면 getServerTime으로 동기화
    *   durationMs?: number, // startAt 없을 때 길이(ms). countFrom 있으면 countFrom*1000
    *   getServerTime?: function(): Promise<{serverNowMs, clientNowMs}>,
@@ -73,7 +84,10 @@
     if (typeof onComplete !== "function") return;
 
     var countFrom = options.countFrom != null ? options.countFrom : 4;
-    var steps = buildStepsFromCount(countFrom);
+    var displayFrom = options.displayFrom != null ? options.displayFrom : countFrom;
+    var steps = (displayFrom < countFrom)
+      ? buildStepsDisplayOnly(countFrom, displayFrom)
+      : buildStepsFromCount(countFrom);
     var durationMs = options.durationMs != null ? options.durationMs : countFrom * 1000;
 
     var startAt = options.startAt;

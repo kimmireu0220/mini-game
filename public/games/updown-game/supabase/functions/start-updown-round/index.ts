@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     }
 
     const secretNumber = Math.floor(Math.random() * 50) + 1; // 1~50
-    const startAt = new Date(Date.now() + 4000).toISOString(); // 4초 후 입력 가능(4,3,2,1 카운트다운 동기화용)
+    const startAt = new Date(Date.now() + 4000).toISOString(); // 4초 후 입력 가능(화면에는 3·2·1 카운트다운만 표시, 동기화용)
 
     const { data: round, error: insertRoundError } = await supabase
       .from("updown_rounds")

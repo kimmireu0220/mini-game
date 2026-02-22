@@ -667,6 +667,7 @@
     window.GameCountdown.run({
       container: slot,
       countFrom: 4,
+      displayFrom: 3,
       startAt: startAt,
       getServerTime: window.GameGetServerTime && window.GameGetServerTime.getServerTimeMs ? function () { return window.GameGetServerTime.getServerTimeMs(getConfig); } : undefined,
       onComplete: onComplete

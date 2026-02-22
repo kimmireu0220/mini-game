@@ -7,7 +7,7 @@
 ## 규칙 요약
 
 - **방**: 6자리 코드로 생성/입장. (timing-game / updown-game과 동일한 방 패턴)
-- **라운드**: 호스트가 "시작" → 3·2·1 카운트다운 → **Go!** 시점부터 각자 **1 → 2 → … → 16** 순서대로 터치.
+- **라운드**: 호스트가 "시작" → 4초 후 **Go!**(화면에는 3·2·1 카운트다운만 표시) → **Go!** 시점부터 각자 **1 → 2 → … → 16** 순서대로 터치.
 - **순서**: 다음에 눌러야 할 숫자만 유효. 잘못된 숫자 터치 시 무시(반응 없음).
 - **종료**: 16을 터치한 시점에 **소요 시간(ms)** 을 서버에 제출. 제한 시간(예: 30초) 내 완료 못 하면 실패(기록 없음 또는 null 처리).
 - **순위**: 라운드 종료 후 **소요 시간 오름차순**으로 1등·2등·3등 표시.
@@ -43,7 +43,7 @@
 - **screen-create-done**: "대기실로" → **screen-lobby**.
 - **screen-join**: 방 코드 입력 후 "입장" → 성공 시 **screen-lobby**.
 - **screen-lobby**: 참가자 목록 표시. 호스트만 "시작" 버튼 표시. "시작" 클릭 시 **라운드 시작 로직(3)** 실행. "나가기" 시 방 퇴장 후 **screen-nickname**.
-- **screen-round**: 카운트다운 → Go! → 1~16 그리드 플레이. **결과 표시 조건(6)** 충족 시 결과 영역 표시. "다시 하기" → **screen-lobby**. "나가기" → **screen-nickname**.
+- **screen-round**: 카운트다운(3·2·1) → Go! → 1~16 그리드 플레이. **결과 표시 조건(6)** 충족 시 결과 영역 표시. "다시 하기"는 **방장만** 표시되며, 방장이 누르면 로비 없이 **바로 새 라운드**(3·2·1 → Go!) 시작. "나가기" → **screen-nickname**.
 
 ### 3. 라운드 시작 로직 (호스트만)
 
@@ -64,8 +64,8 @@
 2. `state.currentRound = { id, room_id, start_at }` 저장.
 3. **screen-round**로 전환. 그리드 영역은 비활성(숫자 비활성 또는 가림).
 4. **카운트다운 실행**  
-   - `GameCountdown.run({ countFrom: 4, startAt: new Date(round.start_at).getTime(), getServerTime, onComplete })`  
-   - `getServerTime`은 timing-game과 동일하게 Supabase Edge Function 등으로 서버 시각 획득해 클라이언트 시각과 오프셋 계산.
+   - `GameCountdown.run({ countFrom: 4, displayFrom: 3, startAt: new Date(round.start_at).getTime(), getServerTime, onComplete })`  
+   - 총 4초 후 Go! 이며, 화면에는 3·2·1만 표시(4는 안 보임). `getServerTime`으로 서버 시각 동기화.
 5. **onComplete** 시점에:
    - `state.nextExpected = 1`, `state.durationMs = null`
    - getServerTime으로 `goTimeServerMs`, `serverOffsetMs` 저장
@@ -101,7 +101,7 @@
   - `GameRankDisplay.applyRanks` 또는 동일 형식으로 1등·2등·3등·… 표시.  
   - duration_ms는 초 단위로 변환해 "12.34초" 등으로 표시. 미완료는 "—" 또는 "완료 못 함".
 - 결과 화면 버튼:
-  - **"다시 하기"**: `state.currentRound = null` 등 정리 후 **screen-lobby**로 전환. 호스트가 다시 "시작" 가능.
+  - **"다시 하기"**: **방장에게만** 표시. 방장이 누르면 로비로 가지 않고 **바로 새 라운드 API 호출** → 3·2·1 카운트다운 후 게임 시작.
   - **"나가기"**: 방 나가기 처리 후 **screen-nickname**.
 
 ### 7. Realtime 구독
