@@ -762,13 +762,10 @@
         if (data.result === "correct") {
           state.currentRound.min = guess;
           state.currentRound.max = guess;
-          feedback.textContent = "정답!";
+          feedback.textContent = "정답! (다른 플레이어를 기다리는 중…)";
           feedback.className = "round-feedback correct";
           feedback.classList.remove("hidden");
-          // DB에 반영된 승수 갱신 후 결과 화면 표시
-          refreshLobbyWins(function () {
-            showRoundResult();
-          });
+          // 전원이 맞출 때까지 대기. Realtime으로 updown_rounds status=finished 되면 결과 화면으로 전환됨
           return;
         }
         if (data.result === "up") {
