@@ -16,5 +16,7 @@ alter table public.updown_round_submissions enable row level security;
 create policy "allow select for round" on public.updown_round_submissions
   for select using (true);
 
-create policy "allow insert for round" on public.updown_round_submissions
-  for insert with check (true);
+drop policy if exists "allow insert for round" on public.updown_round_submissions;
+-- 삽입은 Edge Function(service_role)만 (클라이언트는 제출 시 서버에서 기록)
+create policy "allow insert service" on public.updown_round_submissions
+  for insert to service_role with check (true);

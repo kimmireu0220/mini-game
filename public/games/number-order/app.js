@@ -246,8 +246,6 @@
     if (state.currentRound && state.currentRound.id === round.id) return;
     state.currentRound = { id: round.id, room_id: round.room_id, start_at: round.start_at };
     state.nextExpected = 1;
-    state.tap1Time = null;
-    state.tap16Time = null;
     state.durationMs = null;
     state.roundResultOrder = [];
     showScreen("screen-round");
@@ -318,8 +316,6 @@
         onComplete: function () {
           state.countdownActive = false;
           state.nextExpected = 1;
-          state.tap1Time = null;
-          state.tap16Time = null;
           if (grid) {
             grid.querySelectorAll("button").forEach(function (btn) {
               btn.disabled = false;
@@ -330,7 +326,6 @@
             .then(function (r) {
               state.goTimeServerMs = r.serverNowMs;
               state.serverOffsetMs = r.serverNowMs - r.clientNowMs;
-              startElapsedTimer();
               startGridTimeout();
               startResultPolling();
             })
@@ -338,7 +333,6 @@
               var startAt = state.currentRound && state.currentRound.start_at ? new Date(state.currentRound.start_at).getTime() : null;
               state.goTimeServerMs = startAt != null ? startAt + 4000 : Date.now();
               state.serverOffsetMs = 0;
-              startElapsedTimer();
               startGridTimeout();
               startResultPolling();
             });
@@ -350,19 +344,7 @@
       var startAt = state.currentRound && state.currentRound.start_at ? new Date(state.currentRound.start_at).getTime() : null;
       state.goTimeServerMs = startAt != null ? startAt + 4000 : Date.now();
       state.serverOffsetMs = 0;
-      startElapsedTimer();
       startResultPolling();
-    }
-  }
-
-  function startElapsedTimer() {
-    /* 경과 시간 DOM 표시 없음. 제출 시 goTimeServerMs ~ 서버 시각으로 duration_ms 계산. */
-  }
-
-  function stopElapsedTimer() {
-    if (state.elapsedTimerIntervalId != null) {
-      clearInterval(state.elapsedTimerIntervalId);
-      state.elapsedTimerIntervalId = null;
     }
   }
 
@@ -371,7 +353,6 @@
       if (state.currentRound && state.nextExpected <= 16) {
         var grid = document.getElementById("number-order-grid");
         if (grid) grid.querySelectorAll("button").forEach(function (btn) { btn.disabled = true; });
-        stopElapsedTimer();
       }
     }, GRID_TIMEOUT_MS);
   }
@@ -399,14 +380,10 @@
     var pressedBtn = grid.querySelector('button[data-value="' + n + '"]');
     if (pressedBtn) pressedBtn.classList.add("number-order-pressed");
 
-    if (n === 1) {
-      state.tap1Time = Date.now();
-    }
     if (n === 16) {
       state.nextExpected = 17;
       updateGridPressedState();
       grid.querySelectorAll("button").forEach(function (btn) { btn.disabled = true; });
-      stopElapsedTimer();
       var estimatedMs = state.goTimeServerMs != null ? (Date.now() + (state.serverOffsetMs || 0)) - state.goTimeServerMs : 0;
       state.durationMs = Math.max(0, estimatedMs);
       var completeMsg = document.getElementById("number-order-complete-msg");
@@ -557,8 +534,6 @@
   function playAgain() {
     state.currentRound = null;
     state.nextExpected = 1;
-    state.tap1Time = null;
-    state.tap16Time = null;
     state.durationMs = null;
     state.goTimeServerMs = null;
     state.serverOffsetMs = null;
@@ -569,7 +544,6 @@
       state.resultPollIntervalId = null;
     }
     if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
-    stopElapsedTimer();
     var resultSection = document.getElementById("round-result-section");
     var slot = document.getElementById("round-gameplay-slot");
     if (resultSection) resultSection.classList.add("hidden");
@@ -592,8 +566,6 @@
     state.hostClientId = null;
     state.currentRound = null;
     state.nextExpected = 1;
-    state.tap1Time = null;
-    state.tap16Time = null;
     state.durationMs = null;
     state.goTimeServerMs = null;
     state.serverOffsetMs = null;
@@ -601,7 +573,6 @@
     state.resultShownForRoundId = null;
     cleanupSubscriptions();
     if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
-    stopElapsedTimer();
     showScreen("screen-nickname");
     if (sb && roomId) {
       sb.from("no_room_players").delete().eq("room_id", roomId).eq("client_id", state.clientId).then(function () {

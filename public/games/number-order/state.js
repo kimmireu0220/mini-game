@@ -49,7 +49,6 @@
   var state = {
     clientId: getClientId(),
     nickname: getNickname(),
-    screen: "screen-nickname",
     roomId: null,
     roomCode: null,
     roomName: null,
@@ -57,15 +56,12 @@
     hostClientId: null,
     currentRound: null,
     nextExpected: 1,
-    tap1Time: null,
-    tap16Time: null,
     durationMs: null,
     roundResultOrder: [],
     winCounts: {},
     resultShownForRoundId: null,
     unsubscribeRoom: null,
     resultPollIntervalId: null,
-    elapsedTimerIntervalId: null,
     countdownActive: false,
     goTimeServerMs: null,
     serverOffsetMs: null,
@@ -78,10 +74,6 @@
     if (state.resultPollIntervalId != null) {
       clearInterval(state.resultPollIntervalId);
       state.resultPollIntervalId = null;
-    }
-    if (state.elapsedTimerIntervalId != null) {
-      clearInterval(state.elapsedTimerIntervalId);
-      state.elapsedTimerIntervalId = null;
     }
     if (state.unsubscribeRoom) {
       state.unsubscribeRoom();

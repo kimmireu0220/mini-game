@@ -54,10 +54,6 @@
   display: none;
 }
 
-.game-page-wrapper #round-gameplay-slot .round-live-timer {
-  margin-bottom: 1rem;
-}
-
 /* 결과 화면: 타이밍/업다운과 동일 — 소요 시간(round-zone-time) 스타일 */
 .game-page-wrapper .round-player-zone .round-zone-time {
   font-size: 1.8rem;

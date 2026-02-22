@@ -30,10 +30,10 @@
 | `isHost` | boolean | 호스트 여부 |
 | `hostClientId` | string | 호스트의 client_id |
 | `currentRound` | { id, room_id, start_at } \| null | 현재 라운드 (no_rounds 행) |
-| `nextExpected` | number | 그리드에서 다음에 눌러야 할 숫자 (1~16) |
-| `tap1Time` | number \| null | 1을 **처음** 누른 시각 (Date.now()) |
-| `tap16Time` | number \| null | 16을 누른 시각 (Date.now()) |
-| `durationMs` | number \| null | 제출한 소요 시간 (tap16Time - tap1Time) |
+| `nextExpected` | number | 그리드에서 다음에 눌러야 할 숫자 (1~17, 17=완료) |
+| `durationMs` | number \| null | 제출한 소요 시간 (Go! 시점 ~ 16터치, 서버 시각 기준) |
+| `goTimeServerMs` | number \| null | Go! 시점의 서버 시각(ms). duration 계산 기준 |
+| `serverOffsetMs` | number | 클라이언트 시계와 서버 시계 차이 |
 | `roundResultOrder` | Array<{ client_id, nickname, duration_ms }> | 결과 화면용 정렬된 목록 |
 
 ### 2. 화면 전환 규칙
@@ -67,12 +67,10 @@
    - `GameCountdown.run({ countFrom: 4, startAt: new Date(round.start_at).getTime(), getServerTime, onComplete })`  
    - `getServerTime`은 timing-game과 동일하게 Supabase Edge Function 등으로 서버 시각 획득해 클라이언트 시각과 오프셋 계산.
 5. **onComplete** 시점에:
-   - `state.nextExpected = 1`
-   - `state.tap1Time = null`
-   - `state.tap16Time = null`
-   - `state.durationMs = null`
-   - 1~16 그리드 **전부** 표시. 다음에 누를 카드는 강조하지 않음(모두 동일 스타일). 순서대로만 유효 입력.
-   - **경과 타이머** 시작 (0.00초부터 증가, 0.1초 단위 등). 화면에 표시.
+   - `state.nextExpected = 1`, `state.durationMs = null`
+   - getServerTime으로 `goTimeServerMs`, `serverOffsetMs` 저장
+   - 1~16 그리드 **전부** 활성화. 순서대로만 유효 입력. (경과 시간 DOM 표시 없음)
+   - 30초 후 그리드 자동 비활성화. 결과는 전원 제출 또는 35초 후 폴링으로 표시.
 
 ### 5. 그리드 입력 로직 (1~16 순서 터치)
 
@@ -80,15 +78,11 @@
 - **클릭/터치 시**:
   1. `N !== state.nextExpected` 이면 **무시** (반응 없음).
   2. `N === state.nextExpected` 인 경우만 처리:
-     - **N === 1** 이면: `state.tap1Time = Date.now()` 저장.
      - **N === 16** 이면:  
-       - `state.tap16Time = Date.now()`  
-       - `duration_ms = state.tap16Time - state.tap1Time` (정수)  
-       - **no_round_results**에 insert: `{ round_id: state.currentRound.id, client_id: state.clientId, duration_ms }`  
-       - 그리드 **전체 비활성화** (추가 터치 무시).  
-       - 경과 타이머 정지.  
-       - (선택) 화면에 "완료! O.OO초" 표시.
-     - **1 < N < 16** 이면: `state.nextExpected = N + 1` 로 갱신. 시각적 강조 없음(그리드 모양 유지).
+       - `duration_ms = 서버 시각(now) - goTimeServerMs` (getServerTime으로 보정 후 no_round_results에 제출)  
+       - **no_round_results**에 upsert: `{ round_id, client_id, duration_ms }`  
+       - 그리드 **전체 비활성화**. 화면에 "완료! 다른 플레이어 대기 중.." 표시.
+     - **N < 16** 이면: `state.nextExpected = N + 1` 로 갱신. 누른 칸은 시각적으로 표시(number-order-pressed).
 - **제한 시간**: Go! 시점부터 **30초** 경과 시 자동으로 그리드 비활성화. 이 경우 **제출하지 않음** (해당 플레이어는 결과에 "완료 못 함" 또는 제외).
 
 ### 6. 결과 표시 조건 및 결과 화면

@@ -10,9 +10,15 @@
 
 ## 설정
 
-1. Supabase 프로젝트에서 SQL 순서대로 실행:
-   - `supabase/001_tables.sql` — 테이블 + Realtime
+1. Supabase 프로젝트에서 SQL **순서대로** 실행:
+   - `supabase/001_tables.sql` — 방/라운드/플레이어/범위 테이블 + Realtime
    - `supabase/002_rls.sql` — RLS
+   - `supabase/003_add_winner_at.sql` — updown_rounds.winner_at
+   - `supabase/004_updown_round_correct.sql` — 정답 시각 테이블
+   - `supabase/005_updown_start_at.sql` — updown_rounds.start_at (카운트다운 동기화)
+   - `supabase/006_get_updown_round_result_rpc.sql` — 라운드 결과 RPC
+   - `supabase/007_updown_round_submissions.sql` — 제출 이력 테이블
+   - `supabase/008_updown_range_1_to_50.sql` — 범위 1~50 제약
 2. **Edge Function 배포 (필수)**  
    "시작" 버튼이 동작하려면 반드시 배포해야 함.
    - Supabase 대시보드 → **Edge Functions** → **Deploy new function**

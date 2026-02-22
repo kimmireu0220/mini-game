@@ -58,8 +58,6 @@
     isHost: false,
     hostClientId: null,
     unsubscribeRoom: null,
-    unsubscribeRounds: null,
-    unsubscribeRoomDeleted: null,
     currentRound: null,
     winCounts: {},
     waitAllPressesIntervalId: null,
@@ -108,14 +106,6 @@
     if (state.unsubscribeRoom) {
       state.unsubscribeRoom();
       state.unsubscribeRoom = null;
-    }
-    if (state.unsubscribeRounds) {
-      state.unsubscribeRounds();
-      state.unsubscribeRounds = null;
-    }
-    if (state.unsubscribeRoomDeleted) {
-      state.unsubscribeRoomDeleted();
-      state.unsubscribeRoomDeleted = null;
     }
   }
 

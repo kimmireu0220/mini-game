@@ -352,9 +352,6 @@
             state.lobbyRoundPollIntervalId = null;
           }
           state.currentRound = { id: data.round_id, min: 1, max: 50, created_at: data.created_at || null, start_at: data.start_at || null };
-          state.winnerClientId = null;
-          state.roundDurationSeconds = null;
-          state.roundCreatedAt = data.created_at || null;
           state.roundCorrectList = null;
           loadRoundPlayersAndShowGame();
         }
@@ -391,9 +388,6 @@
       state.lobbyRoundPollIntervalId = null;
     }
     state.currentRound = { id: roundId, min: 1, max: 50, created_at: roundPayload.created_at || null, start_at: roundPayload.start_at || null };
-    state.winnerClientId = null;
-    state.roundDurationSeconds = null;
-    state.roundCreatedAt = roundPayload.created_at || null;
     state.roundCorrectList = null;
     ensureUpdownRoundDOM();
     showScreen("screen-round");
@@ -626,22 +620,6 @@
   /** Go! 시각. Supabase에 start_at이 이미 입력 가능 시점(카운트다운 종료)으로 저장됨 → 그대로 사용 */
   function getRoundStartTime() {
     return (state.currentRound && state.currentRound.start_at) || null;
-  }
-
-  function applyDurationsToResultZones(resultOrder, roundStartTime) {
-    if (!roundStartTime) return;
-    var resultZones = document.getElementById("round-result-zones");
-    if (!resultZones) return;
-    var zones = resultZones.querySelectorAll(".round-player-zone[data-client-id]");
-    zones.forEach(function (zone) {
-      var cid = zone.dataset.clientId;
-      var p = resultOrder.find(function (x) { return x.client_id === cid; });
-      var timeEl = zone.querySelector(".round-zone-time");
-      if (timeEl && p && p.correct_at) {
-        var totalSec = (new Date(p.correct_at).getTime() - new Date(roundStartTime).getTime()) / 1000;
-        timeEl.textContent = window.GameFormatTime && window.GameFormatTime.formatDurationSeconds ? window.GameFormatTime.formatDurationSeconds(totalSec, "—") : (totalSec != null ? totalSec.toFixed(2) : "—");
-      }
-    });
   }
 
   function showRoundResult() {
