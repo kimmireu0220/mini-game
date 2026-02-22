@@ -539,11 +539,13 @@
     state.serverOffsetMs = null;
     state.roundResultOrder = [];
     state.resultShownForRoundId = null;
+    state.countdownActive = false;
     if (state.resultPollIntervalId != null) {
       clearInterval(state.resultPollIntervalId);
       state.resultPollIntervalId = null;
     }
     if (window.GameAudio && window.GameAudio.stopRoundBgm) window.GameAudio.stopRoundBgm(state);
+    cleanupSubscriptions();
     var resultSection = document.getElementById("round-result-section");
     var slot = document.getElementById("round-gameplay-slot");
     if (resultSection) resultSection.classList.add("hidden");
