@@ -260,28 +260,24 @@
       if (!state.roomId) return;
       refreshLobbyPlayers();
     }, 2000);
-    var lobbyPollMs = 1500;
-    state.lobbyRoundPollIntervalId = setInterval(function () {
-      if (!state.roomId) return;
-      sb.from("timing_rounds")
-        .select("id, start_at, target_seconds, created_at")
-        .eq("room_id", state.roomId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .then(function (res) {
-          if (!res.data || res.data.length === 0) return;
-          var round = res.data[0];
-          if (state.currentRound && state.currentRound.id === round.id) return;
-          if (state.pollRoundIntervalId != null) return;
-          var created = round.created_at ? new Date(round.created_at).getTime() : 0;
-          if (created && Date.now() - created > 20000) return;
-          var startAtMs = round.start_at ? new Date(round.start_at).getTime() : 0;
-          if (startAtMs && Date.now() > startAtMs + 5000) return;
-          clearInterval(state.lobbyRoundPollIntervalId);
-          state.lobbyRoundPollIntervalId = null;
-          onRoundStarted(round);
-        });
-    }, lobbyPollMs);
+    state.lobbyRoundPollStop = (window.GameRoundPoll && window.GameRoundPoll.startLatestRoundPoll)
+      ? window.GameRoundPoll.startLatestRoundPoll(sb, {
+          roomId: state.roomId,
+          table: "timing_rounds",
+          select: "id, start_at, target_seconds, created_at",
+          getCurrentRoundId: function () { return state.currentRound ? state.currentRound.id : null; },
+          onNewRound: onRoundStarted,
+          shouldAcceptRound: function (round) {
+            if (state.pollRoundIntervalId != null) return false;
+            var created = round.created_at ? new Date(round.created_at).getTime() : 0;
+            if (created && Date.now() - created > 20000) return false;
+            var startAtMs = round.start_at ? new Date(round.start_at).getTime() : 0;
+            if (startAtMs && Date.now() > startAtMs + 5000) return false;
+            return true;
+          },
+          intervalMs: 1000
+        })
+      : function () {};
   }
 
   function refreshLobbyPlayers() {
@@ -680,9 +676,9 @@
       clearInterval(state.pollRoundIntervalId);
       state.pollRoundIntervalId = null;
     }
-    if (state.lobbyRoundPollIntervalId != null) {
-      clearInterval(state.lobbyRoundPollIntervalId);
-      state.lobbyRoundPollIntervalId = null;
+    if (state.lobbyRoundPollStop) {
+      state.lobbyRoundPollStop();
+      state.lobbyRoundPollStop = null;
     }
     state.currentRound = round;
     state.myPressCreatedAt = null;

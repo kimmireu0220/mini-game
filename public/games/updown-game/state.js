@@ -59,8 +59,8 @@
     hostClientId: null,
     unsubscribeRoom: null,
     lobbyPlayersPollIntervalId: null,
-    lobbyRoundPollIntervalId: null,
-    resultScreenRoundPollIntervalId: null,
+    lobbyRoundPollStop: null,
+    resultScreenRoundPollStop: null,
     currentRound: null,
     winCounts: {},
     roundCorrectList: null,
@@ -72,13 +72,13 @@
       clearInterval(state.lobbyPlayersPollIntervalId);
       state.lobbyPlayersPollIntervalId = null;
     }
-    if (state.lobbyRoundPollIntervalId != null) {
-      clearInterval(state.lobbyRoundPollIntervalId);
-      state.lobbyRoundPollIntervalId = null;
+    if (state.lobbyRoundPollStop) {
+      state.lobbyRoundPollStop();
+      state.lobbyRoundPollStop = null;
     }
-    if (state.resultScreenRoundPollIntervalId != null) {
-      clearInterval(state.resultScreenRoundPollIntervalId);
-      state.resultScreenRoundPollIntervalId = null;
+    if (state.resultScreenRoundPollStop) {
+      state.resultScreenRoundPollStop();
+      state.resultScreenRoundPollStop = null;
     }
     if (state.unsubscribeRoom) {
       state.unsubscribeRoom();

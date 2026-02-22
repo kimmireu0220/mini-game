@@ -305,23 +305,16 @@
       if (!state.roomId) return;
       refreshLobbyWins();
     }, 3000);
-    var pollMs = 1500;
-    state.lobbyRoundPollIntervalId = setInterval(function () {
-      if (!state.roomId) return;
-      sb.from("updown_rounds")
-        .select("id, status, winner_client_id, created_at, start_at")
-        .eq("room_id", state.roomId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .then(function (res) {
-          if (!res.data || res.data.length === 0) return;
-          var round = res.data[0];
-          if (state.currentRound && state.currentRound.id === round.id) return;
-          clearInterval(state.lobbyRoundPollIntervalId);
-          state.lobbyRoundPollIntervalId = null;
-          onRoundStarted(round);
-        });
-    }, pollMs);
+    state.lobbyRoundPollStop = (window.GameRoundPoll && window.GameRoundPoll.startLatestRoundPoll)
+      ? window.GameRoundPoll.startLatestRoundPoll(sb, {
+          roomId: state.roomId,
+          table: "updown_rounds",
+          select: "id, status, winner_client_id, created_at, start_at",
+          getCurrentRoundId: function () { return state.currentRound ? state.currentRound.id : null; },
+          onNewRound: onRoundStarted,
+          intervalMs: 1000
+        })
+      : function () {};
   }
 
   function startRound() {
@@ -343,9 +336,9 @@
           return;
         }
         if (data.round_id) {
-          if (state.lobbyRoundPollIntervalId) {
-            clearInterval(state.lobbyRoundPollIntervalId);
-            state.lobbyRoundPollIntervalId = null;
+          if (state.lobbyRoundPollStop) {
+            state.lobbyRoundPollStop();
+            state.lobbyRoundPollStop = null;
           }
           state.currentRound = { id: data.round_id, min: 1, max: 50, created_at: data.created_at || null, start_at: data.start_at || null };
           state.roundCorrectList = null;
@@ -379,13 +372,13 @@
   function onRoundStarted(roundPayload) {
     var roundId = roundPayload.id;
     if (state.currentRound && state.currentRound.id === roundId) return;
-    if (state.lobbyRoundPollIntervalId) {
-      clearInterval(state.lobbyRoundPollIntervalId);
-      state.lobbyRoundPollIntervalId = null;
+    if (state.lobbyRoundPollStop) {
+      state.lobbyRoundPollStop();
+      state.lobbyRoundPollStop = null;
     }
-    if (state.resultScreenRoundPollIntervalId) {
-      clearInterval(state.resultScreenRoundPollIntervalId);
-      state.resultScreenRoundPollIntervalId = null;
+    if (state.resultScreenRoundPollStop) {
+      state.resultScreenRoundPollStop();
+      state.resultScreenRoundPollStop = null;
     }
     state.currentRound = { id: roundId, min: 1, max: 50, created_at: roundPayload.created_at || null, start_at: roundPayload.start_at || null };
     state.roundCorrectList = null;
@@ -630,28 +623,20 @@
     });
     var sb = getSupabase();
     if (sb && state.roomId && state.currentRound) {
-      if (state.resultScreenRoundPollIntervalId != null) {
-        clearInterval(state.resultScreenRoundPollIntervalId);
-        state.resultScreenRoundPollIntervalId = null;
+      if (state.resultScreenRoundPollStop) {
+        state.resultScreenRoundPollStop();
+        state.resultScreenRoundPollStop = null;
       }
-      state.resultScreenRoundPollIntervalId = setInterval(function () {
-        if (!state.roomId || !state.currentRound) return;
-        sb.from("updown_rounds")
-          .select("id, created_at, start_at")
-          .eq("room_id", state.roomId)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .then(function (res) {
-            if (!res.data || res.data.length === 0) return;
-            var round = res.data[0];
-            if (round.id === state.currentRound.id) return;
-            if (state.resultScreenRoundPollIntervalId != null) {
-              clearInterval(state.resultScreenRoundPollIntervalId);
-              state.resultScreenRoundPollIntervalId = null;
-            }
-            onRoundStarted(round);
-          });
-      }, 1500);
+      state.resultScreenRoundPollStop = (window.GameRoundPoll && window.GameRoundPoll.startLatestRoundPoll)
+        ? window.GameRoundPoll.startLatestRoundPoll(sb, {
+            roomId: state.roomId,
+            table: "updown_rounds",
+            select: "id, created_at, start_at",
+            getCurrentRoundId: function () { return state.currentRound ? state.currentRound.id : null; },
+            onNewRound: onRoundStarted,
+            intervalMs: 1000
+          })
+        : function () {};
     }
     var players = state.roundPlayers || [];
     var correctList = state.roundCorrectList || [];
@@ -876,9 +861,9 @@
           return;
         }
         if (data.round_id) {
-          if (state.lobbyRoundPollIntervalId) {
-            clearInterval(state.lobbyRoundPollIntervalId);
-            state.lobbyRoundPollIntervalId = null;
+          if (state.lobbyRoundPollStop) {
+            state.lobbyRoundPollStop();
+            state.lobbyRoundPollStop = null;
           }
           state.currentRound = { id: data.round_id, min: 1, max: 50, created_at: data.created_at || null, start_at: data.start_at || null };
           state.roundCorrectList = null;

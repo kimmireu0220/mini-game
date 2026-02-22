@@ -62,7 +62,7 @@
     winCounts: {},
     waitAllPressesIntervalId: null,
     pollRoundIntervalId: null,
-    lobbyRoundPollIntervalId: null,
+    lobbyRoundPollStop: null,
     lobbyPlayersPollIntervalId: null,
     roundPressesPollIntervalId: null,
     liveTimerInterval: null,
@@ -79,9 +79,9 @@
       clearInterval(state.pollRoundIntervalId);
       state.pollRoundIntervalId = null;
     }
-    if (state.lobbyRoundPollIntervalId != null) {
-      clearInterval(state.lobbyRoundPollIntervalId);
-      state.lobbyRoundPollIntervalId = null;
+    if (state.lobbyRoundPollStop) {
+      state.lobbyRoundPollStop();
+      state.lobbyRoundPollStop = null;
     }
     if (state.lobbyPlayersPollIntervalId != null) {
       clearInterval(state.lobbyPlayersPollIntervalId);

@@ -62,7 +62,7 @@
     resultShownForRoundId: null,
     unsubscribeRoom: null,
     resultPollIntervalId: null,
-    resultScreenRoundPollIntervalId: null,
+    resultScreenRoundPollStop: null,
     countdownActive: false,
     goTimeServerMs: null,
     serverOffsetMs: null,
@@ -76,9 +76,9 @@
       clearInterval(state.resultPollIntervalId);
       state.resultPollIntervalId = null;
     }
-    if (state.resultScreenRoundPollIntervalId != null) {
-      clearInterval(state.resultScreenRoundPollIntervalId);
-      state.resultScreenRoundPollIntervalId = null;
+    if (state.resultScreenRoundPollStop) {
+      state.resultScreenRoundPollStop();
+      state.resultScreenRoundPollStop = null;
     }
     if (state.unsubscribeRoom) {
       state.unsubscribeRoom();

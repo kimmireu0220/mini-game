@@ -244,9 +244,9 @@
 
   function onRoundStarted(round) {
     if (state.currentRound && state.currentRound.id === round.id) return;
-    if (state.resultScreenRoundPollIntervalId) {
-      clearInterval(state.resultScreenRoundPollIntervalId);
-      state.resultScreenRoundPollIntervalId = null;
+    if (state.resultScreenRoundPollStop) {
+      state.resultScreenRoundPollStop();
+      state.resultScreenRoundPollStop = null;
     }
     state.currentRound = { id: round.id, room_id: round.room_id, start_at: round.start_at };
     state.nextExpected = 1;
@@ -514,28 +514,22 @@
             });
             var sb2 = getSupabase();
             if (sb2 && state.roomId && state.currentRound) {
-              if (state.resultScreenRoundPollIntervalId != null) {
-                clearInterval(state.resultScreenRoundPollIntervalId);
-                state.resultScreenRoundPollIntervalId = null;
+              if (state.resultScreenRoundPollStop) {
+                state.resultScreenRoundPollStop();
+                state.resultScreenRoundPollStop = null;
               }
-              state.resultScreenRoundPollIntervalId = setInterval(function () {
-                if (!state.roomId || !state.currentRound) return;
-                sb2.from("no_rounds")
-                  .select("id, start_at")
-                  .eq("room_id", state.roomId)
-                  .order("created_at", { ascending: false })
-                  .limit(1)
-                  .then(function (res) {
-                    if (!res.data || res.data.length === 0) return;
-                    var round = res.data[0];
-                    if (round.id === state.currentRound.id) return;
-                    if (state.resultScreenRoundPollIntervalId != null) {
-                      clearInterval(state.resultScreenRoundPollIntervalId);
-                      state.resultScreenRoundPollIntervalId = null;
-                    }
-                    onRoundStarted({ id: round.id, room_id: state.roomId, start_at: round.start_at });
-                  });
-              }, 1500);
+              state.resultScreenRoundPollStop = (window.GameRoundPoll && window.GameRoundPoll.startLatestRoundPoll)
+                ? window.GameRoundPoll.startLatestRoundPoll(sb2, {
+                    roomId: state.roomId,
+                    table: "no_rounds",
+                    select: "id, start_at",
+                    getCurrentRoundId: function () { return state.currentRound ? state.currentRound.id : null; },
+                    onNewRound: function (round) {
+                      onRoundStarted({ id: round.id, room_id: state.roomId, start_at: round.start_at });
+                    },
+                    intervalMs: 1000
+                  })
+                : function () {};
             }
           });
       });
@@ -585,6 +579,10 @@
     if (state.resultPollIntervalId != null) {
       clearInterval(state.resultPollIntervalId);
       state.resultPollIntervalId = null;
+    }
+    if (state.resultScreenRoundPollStop) {
+      state.resultScreenRoundPollStop();
+      state.resultScreenRoundPollStop = null;
     }
     var resultSection = document.getElementById("round-result-section");
     var slot = document.getElementById("round-gameplay-slot");
