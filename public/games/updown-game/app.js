@@ -403,7 +403,6 @@
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "updown_rounds", filter: "id=eq." + roundId }, function (payload) {
           if (payload.new && payload.new.status === "finished") {
             state.roundCorrectList = null;
-            state.roundCreatedAt = payload.new.created_at || null;
             if (state.currentRound && state.currentRound.id === roundId) {
               state.currentRound.start_at = payload.new.start_at != null ? payload.new.start_at : state.currentRound.start_at;
               state.currentRound.created_at = payload.new.created_at || state.currentRound.created_at;
@@ -422,7 +421,6 @@
                     state.currentRound.created_at = row.created_at != null ? row.created_at : state.currentRound.created_at;
                   }
                   state.roundCorrectList = Array.isArray(row.correct_list) ? row.correct_list : [];
-                  if (row.created_at != null) state.roundCreatedAt = row.created_at;
                   goShowResult();
                   return;
                 }
@@ -480,7 +478,6 @@
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "updown_rounds", filter: "id=eq." + roundId }, function (payload) {
           if (payload.new && payload.new.status === "finished") {
             state.roundCorrectList = null;
-            state.roundCreatedAt = payload.new.created_at || null;
             if (state.currentRound && state.currentRound.id === roundId) {
               state.currentRound.start_at = payload.new.start_at != null ? payload.new.start_at : state.currentRound.start_at;
               state.currentRound.created_at = payload.new.created_at || state.currentRound.created_at;
@@ -499,7 +496,6 @@
                     state.currentRound.created_at = row.created_at != null ? row.created_at : state.currentRound.created_at;
                   }
                   state.roundCorrectList = Array.isArray(row.correct_list) ? row.correct_list : [];
-                  if (row.created_at != null) state.roundCreatedAt = row.created_at;
                   goShowResult();
                   return;
                 }
@@ -645,10 +641,7 @@
           var row = (Array.isArray(res.data) && res.data.length) ? res.data[0] : res.data;
           if (!res.error && row) {
             if (row.start_at != null) state.currentRound.start_at = row.start_at;
-            if (row.created_at != null) {
-              state.currentRound.created_at = row.created_at;
-              state.roundCreatedAt = row.created_at;
-            }
+            if (row.created_at != null) state.currentRound.created_at = row.created_at;
             if (Array.isArray(row.correct_list) && row.correct_list.length) {
               state.roundCorrectList = row.correct_list;
               var list = state.roundCorrectList;
@@ -776,7 +769,6 @@
           feedback.textContent = "정답!";
           feedback.className = "round-feedback correct";
           feedback.classList.remove("hidden");
-          state.winnerClientId = state.clientId;
           // DB에 반영된 승수 갱신 후 결과 화면 표시
           refreshLobbyWins(function () {
             showRoundResult();
@@ -817,10 +809,7 @@
 
   function playAgain() {
     state.currentRound = null;
-    state.winnerClientId = null;
     state.roundCorrectList = null;
-    state.roundCreatedAt = null;
-    state.roundDurationSeconds = null;
     state.roundPlayers = null;
     if (state.unsubscribeRound) {
       state.unsubscribeRound();
